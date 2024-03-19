@@ -1,10 +1,13 @@
 import streamlit as st
 import geopandas as gpd
 import folium
+import requests
+import zipfile
+import io
 
-# URLs dos arquivos shapefile no GitHub
-bandeirantes_url = 'https://github.com/seu_usuario/seu_repositorio/raw/main/bandeirantesDashboard.zip'
-perimetro_url = 'https://github.com/seu_usuario/seu_repositorio/raw/main/perimetroBandeirantes.zip'
+# URLs dos arquivos shapefile no GitHub (com permalinks)
+bandeirantes_url = 'https://github.com/seu_usuario/seu_repositorio/raw/versao_arquivos/bandeirantesDashboard.zip'
+perimetro_url = 'https://github.com/seu_usuario/seu_repositorio/raw/versao_arquivos/perimetroBandeirantes.zip'
 
 # Função para carregar e exibir o mapa a partir de um arquivo shapefile
 def show_map(shapefile_url):
@@ -14,7 +17,7 @@ def show_map(shapefile_url):
         zip_ref.extractall('temp')
 
     # Carrega o arquivo shapefile
-    gdf = gpd.read_file('temp')
+    gdf = gpd.read_file('temp/bandeirantesDashboard.shp')
 
     # Cria um mapa básico com o Folium
     m = folium.Map(location=[-25.4284, -49.2733], zoom_start=12)
