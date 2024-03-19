@@ -6,8 +6,8 @@ import zipfile
 import io
 
 # URLs dos arquivos shapefile no GitHub (com permalinks)
-bandeirantes_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/81cccc596276398955d324e9d8f5a28f2eafb6f9/shpsPerimetro.zip'
-perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/635b3f171d80097385127ca7e9bffae0e0469580/shpsBandeirantes.zip'
+bandeirantes_url = 'shpsBandeirantes.zip'
+perimetro_url = 'shpsPerimetro.zip'
 
 # Função para carregar e exibir o mapa a partir de um arquivo shapefile
 def show_map(shapefile_url):
