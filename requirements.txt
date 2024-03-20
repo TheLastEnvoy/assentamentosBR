@@ -1,7 +1,4 @@
-streamlit
 geopandas
 folium
-requests
-zipfile
-io
-shutil
+streamlit
+numpy
