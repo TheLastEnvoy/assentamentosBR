@@ -4,20 +4,24 @@ import folium
 import requests
 import zipfile
 import io
+import shutil
 
 def download_and_extract_zipfile(url, output_dir):
-    response = requests.get(url)
-    with open('temp.zip', 'wb') as f:
-        f.write(response.content)
+    # Baixa o arquivo ZIP
+    with requests.get(url, stream=True) as r:
+        with open('temp.zip', 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+    
+    # Extrai o arquivo ZIP
     with zipfile.ZipFile('temp.zip', 'r') as zip_ref:
         zip_ref.extractall(output_dir)
 
-# URLs dos arquivos shapefile no GitHub (com permalinks)
-bandeirantes_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/blob/fe7d2326ffcc4fcc99432e75de67ca40e7680b74/shpsBandeirantes.zip'
-perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/blob/aa9c6d7c981387ed29f6c5a73e5af4c6c9cd0c0c/shpsPerimetro.zip'
+# URLs dos arquivos shapefile no GitHub
+bandeirantes_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/bandeirantesDashboard.zip'
+perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/perimetroBandeirantes.zip'
 
-output_dir_bandeirantes = 'temp/bandeirantes'
-output_dir_perimetro = 'temp/perimetro'
+output_dir_bandeirantes = 'temp/bandeirantesDashboard'
+output_dir_perimetro = 'temp/perimetroBandeirantes'
 
 download_and_extract_zipfile(bandeirantes_url, output_dir_bandeirantes)
 download_and_extract_zipfile(perimetro_url, output_dir_perimetro)
