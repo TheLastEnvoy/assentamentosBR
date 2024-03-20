@@ -5,19 +5,27 @@ import requests
 import zipfile
 import io
 
+def download_and_extract_zipfile(url, output_dir):
+    response = requests.get(url)
+    with open('temp.zip', 'wb') as f:
+        f.write(response.content)
+    with zipfile.ZipFile('temp.zip', 'r') as zip_ref:
+        zip_ref.extractall(output_dir)
+
 # URLs dos arquivos shapefile no GitHub (com permalinks)
 bandeirantes_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/shpsBandeirantes.zip'
 perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/shpsPerimetro.zip'
 
-# Função para carregar e exibir o mapa a partir de um arquivo shapefile
-def show_map(shapefile_url):
-    # Faz o download e extrai o arquivo shapefile
-    response = requests.get(shapefile_url)
-    with zipfile.ZipFile(io.BytesIO(response.content), 'r') as zip_ref:
-        zip_ref.extractall('temp')
+output_dir_bandeirantes = 'temp/bandeirantes'
+output_dir_perimetro = 'temp/perimetro'
 
+download_and_extract_zipfile(bandeirantes_url, output_dir_bandeirantes)
+download_and_extract_zipfile(perimetro_url, output_dir_perimetro)
+
+# Função para carregar e exibir o mapa a partir de um arquivo shapefile
+def show_map(shapefile_path):
     # Carrega o arquivo shapefile
-    gdf = gpd.read_file('temp/shpsPerimetro.shp')
+    gdf = gpd.read_file(shapefile_path)
 
     # Cria um mapa básico com o Folium
     m = folium.Map(location=[-25.4284, -49.2733], zoom_start=12)
@@ -34,7 +42,7 @@ st.title('Mapa Interativo')
 
 # Seção para exibir o mapa
 st.header('Mapa de Bandeirantes')
-show_map(bandeirantes_url)
+show_map(output_dir_bandeirantes)
 
 st.header('Perímetro de Bandeirantes')
-show_map(perimetro_url)
+show_map(output_dir_perimetro)
