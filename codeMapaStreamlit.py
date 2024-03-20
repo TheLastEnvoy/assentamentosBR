@@ -13,8 +13,8 @@ def download_and_extract_zipfile(url, output_dir):
         zip_ref.extractall(output_dir)
 
 # URLs dos arquivos shapefile no GitHub (com permalinks)
-bandeirantes_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/shpsBandeirantes.zip'
-perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/shpsPerimetro.zip'
+bandeirantes_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/blob/fe7d2326ffcc4fcc99432e75de67ca40e7680b74/shpsBandeirantes.zip'
+perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/blob/aa9c6d7c981387ed29f6c5a73e5af4c6c9cd0c0c/shpsPerimetro.zip'
 
 output_dir_bandeirantes = 'temp/bandeirantes'
 output_dir_perimetro = 'temp/perimetro'
