@@ -1,17 +1,16 @@
 import streamlit as st
 import geopandas as gpd
 import folium
-import requests
-import zipfile
-import io
 import shutil
+import os
+import urllib.request
+import zipfile
 
+# Função para baixar e extrair o arquivo ZIP
 def download_and_extract_zipfile(url, output_dir):
     # Baixa o arquivo ZIP
-    with requests.get(url, stream=True) as r:
-        with open('temp.zip', 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
-    
+    urllib.request.urlretrieve(url, 'temp.zip')
+
     # Extrai o arquivo ZIP
     with zipfile.ZipFile('temp.zip', 'r') as zip_ref:
         zip_ref.extractall(output_dir)
@@ -23,6 +22,11 @@ perimetro_url = 'https://github.com/TheLastEnvoy/mapaStreamlit/raw/main/perimetr
 output_dir_bandeirantes = 'temp/bandeirantesDashboard'
 output_dir_perimetro = 'temp/perimetroBandeirantes'
 
+# Cria os diretórios de saída se não existirem
+os.makedirs(output_dir_bandeirantes, exist_ok=True)
+os.makedirs(output_dir_perimetro, exist_ok=True)
+
+# Baixa e extrai os arquivos ZIP
 download_and_extract_zipfile(bandeirantes_url, output_dir_bandeirantes)
 download_and_extract_zipfile(perimetro_url, output_dir_perimetro)
 
