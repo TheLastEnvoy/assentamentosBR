@@ -2,3 +2,6 @@ streamlit
 geopandas
 folium
 requests
+zipfile
+io
+shutil
