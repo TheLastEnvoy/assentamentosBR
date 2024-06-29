@@ -38,8 +38,8 @@ if gdf is not None:
 
     # Verificar se o GeoDataFrame tem geometria válida
     if gdf.geometry.is_valid.all():
-        st.title("Mapa Interativo com Shapefile")
-        st.write("Este mapa interativo exibe dados de um shapefile.")
+        st.title("Mapa Interativo com os projetos de assentamento no Paraná")
+        st.write("As informações exibidas aqui já são públicas")
 
         # Botão para escolher município
         select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Todos"] + gdf["municipio"].unique().tolist())
