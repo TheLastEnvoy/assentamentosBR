@@ -55,21 +55,23 @@ if gdf is not None:
             colormap = cm.linear.YlGnBu_09.scale(min_area, max_area)
 
             # Adicionar shapefile ao mapa com cores baseadas na área
-            for _, row in filtered_gdf.iterrows():
+            for idx, row in filtered_gdf.iterrows():
                 color = colormap(row["area_hecta"])
-                folium.GeoJson(row['geometry'],
-                               style_function=lambda x, color=color: {'fillColor': color, 'color': 'black', 'weight': 1},
-                               popup=folium.Popup(f"{row['municipio']}: {row['area_hecta']} hectares", parse_html=True)
-                               ).add_to(m)
+                geojson = folium.GeoJson(row['geometry'],
+                                         style_function=lambda x, color=color: {'fillColor': color, 'color': 'black', 'weight': 1},
+                                         popup=folium.Popup(f"{row['municipio']}: {row['area_hecta']} hectares", parse_html=True)
+                                         )
+                geojson.add_to(m)
 
             colormap.caption = "Área em hectares"
             m.add_child(colormap)
         else:
             # Adicionar shapefile ao mapa sem colorir por área
-            for _, row in filtered_gdf.iterrows():
-                folium.GeoJson(row['geometry'],
-                               popup=folium.Popup(f"{row['municipio']}: {row['area_hecta']} hectares", parse_html=True)
-                               ).add_to(m)
+            for idx, row in filtered_gdf.iterrows():
+                geojson = folium.GeoJson(row['geometry'],
+                                         popup=folium.Popup(f"{row['municipio']}: {row['area_hecta']} hectares", parse_html=True)
+                                         )
+                geojson.add_to(m)
 
         # Configurar Streamlit
         st.title("Mapa Interativo com Shapefile e QGIS")
