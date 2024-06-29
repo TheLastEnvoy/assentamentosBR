@@ -1,4 +1,6 @@
 geopandas
+pandas
 folium
 streamlit
-numpy
+branca
+streamlit_folium
