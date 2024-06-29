@@ -38,13 +38,17 @@ if gdf is not None:
 
     # Verificar se o GeoDataFrame tem geometria válida
     if gdf.geometry.is_valid.all():
-        # Adicionar opções de seleção no sidebar
-        st.sidebar.title("Opções de Visualização")
-        municipios = gdf["municipio"].unique().tolist()
-        selected_municipios = st.sidebar.multiselect("Selecione os municípios:", municipios, default=municipios)
+        st.title("Mapa Interativo com Shapefile")
+        st.write("Este mapa interativo exibe dados de um shapefile.")
 
-        # Filtrar GeoDataFrame pelos municípios selecionados
-        filtered_gdf = gdf[gdf["municipio"].isin(selected_municipios)]
+        # Botão para escolher município
+        select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Todos"] + gdf["municipio"].unique().tolist())
+
+        if select_municipio != "Todos":
+            # Filtrar GeoDataFrame pelo município selecionado
+            filtered_gdf = gdf[gdf["municipio"] == select_municipio]
+        else:
+            filtered_gdf = gdf  # Mostrar todos os municípios
 
         # Criar mapa com Folium
         centroid = filtered_gdf.geometry.centroid
@@ -57,10 +61,6 @@ if gdf is not None:
                                                              labels=True,
                                                              sticky=False),
                        ).add_to(m)
-
-        # Configurar Streamlit
-        st.title("Mapa Interativo com Shapefile")
-        st.write("Este mapa interativo exibe dados de um shapefile.")
 
         # Exibir mapa no Streamlit
         folium_static(m)
