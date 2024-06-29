@@ -54,13 +54,14 @@ if gdf is not None:
         centroid = filtered_gdf.geometry.centroid
         m = folium.Map(location=[centroid.y.mean(), centroid.x.mean()], zoom_start=8)
 
-        # Adicionar shapefile ao mapa
-        folium.GeoJson(filtered_gdf,
-                       tooltip=folium.features.GeoJsonTooltip(fields=["municipio", "area_hecta"],
-                                                             aliases=["Município", "Área (hectares)"],
-                                                             labels=True,
-                                                             sticky=False),
-                       ).add_to(m)
+        # Adicionar shapefile ao mapa com tooltips personalizados
+        for idx, row in filtered_gdf.iterrows():
+            tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
+                      f"Área: {row['area_hecta']} hectares<br>" \
+                      f"Lotes: {row['capacidade']}"
+            folium.GeoJson(row['geometry'],
+                           tooltip=tooltip,
+                           ).add_to(m)
 
         # Exibir mapa no Streamlit
         folium_static(m)
