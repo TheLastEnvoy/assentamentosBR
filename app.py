@@ -38,7 +38,7 @@ if gdf is not None:
 
     # Verificar se o GeoDataFrame tem geometria válida
     if gdf.geometry.is_valid.all():
-        st.title("Mapa Interativo com os projetos de assentamento no Paraná")
+        st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("As informações exibidas aqui já são públicas")
 
         # Botão para escolher município
