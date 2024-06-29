@@ -1,1 +1,1 @@
-web: streamlit run codeMapaStreamlit.py
+web: streamlit run app.py
