@@ -38,43 +38,32 @@ if gdf is not None:
         st.write("A exibição de todos os assentamentos do país leva cerca de 40s, seja paciente")
         st.write("(As informações exibidas neste site são públicas)")
 
-        # Botões para escolher filtros
-        filters = {
-            'Estado': st.selectbox("Escolha um estado:", [""] + gdf["uf"].unique().tolist()),
-            'Município': st.selectbox("Escolha um município:", [""] + gdf["municipio"].unique().tolist()),
-            'Assentamento': st.selectbox("Escolha um assentamento:", [""] + gdf["nome_proje"].unique().tolist()),
-            'Código SIPRA': st.selectbox("Escolha um código SIPRA:", [""] + gdf["cd_sipra"].unique().tolist()),
-            'Área (hectares)': st.selectbox("Escolha uma área:", [""] + gdf["area_hecta"].unique().tolist()),
-            'Lotes': st.selectbox("Escolha a capacidade (lotes):", [""] + gdf["capacidade"].unique().tolist()),
-            'Fase': st.selectbox("Escolha uma fase:", [""] + gdf["Fase"].unique().tolist()),
-            'Data de criação': st.selectbox("Escolha uma data de criação:", [""] + gdf["data_de_cr"].unique().tolist()),
-            'Forma de obtenção do imóvel': st.selectbox("Escolha a forma de obtenção do imóvel:", [""] + gdf["forma_obten"].unique().tolist()),
-            'Data de obtenção do imóvel': st.selectbox("Escolha uma data de obtenção do imóvel:", [""] + gdf["data_obten"].unique().tolist()),
+        # Lista de colunas para filtros e seus nomes de exibição
+        filter_columns = {
+            'uf': 'Estado',
+            'municipio': 'Município',
+            'nome_proje': 'Assentamento',
+            'cd_sipra': 'Código SIPRA',
+            'area_hecta': 'Área (hectares)',
+            'capacidade': 'Lotes',
+            'num_famili': 'Famílias beneficiárias',
+            'fase': 'Fase',
+            'data_de_cr': 'Data de criação',
+            'forma_obten': 'Forma de obtenção do imóvel',
+            'data_obten': 'Data de obtenção do imóvel'
         }
 
+        # Cria os selectboxes apenas para as colunas que existem no DataFrame
+        filters = {}
+        for col, display_name in filter_columns.items():
+            if col in gdf.columns:
+                unique_values = [""] + gdf[col].dropna().unique().tolist()
+                filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values)
+
         filtered_gdf = gdf.copy()
-        for column, value in filters.items():
+        for col, value in filters.items():
             if value:
-                if column == 'Estado':
-                    filtered_gdf = filtered_gdf[filtered_gdf["uf"] == value]
-                elif column == 'Município':
-                    filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == value]
-                elif column == 'Assentamento':
-                    filtered_gdf = filtered_gdf[filtered_gdf["nome_proje"] == value]
-                elif column == 'Código SIPRA':
-                    filtered_gdf = filtered_gdf[filtered_gdf["cd_sipra"] == value]
-                elif column == 'Área (hectares)':
-                    filtered_gdf = filtered_gdf[filtered_gdf["area_hecta"] == value]
-                elif column == 'Lotes':
-                    filtered_gdf = filtered_gdf[filtered_gdf["capacidade"] == value]
-                elif column == 'Fase':
-                    filtered_gdf = filtered_gdf[filtered_gdf["Fase"] == value]
-                elif column == 'Data de criação':
-                    filtered_gdf = filtered_gdf[filtered_gdf["data_de_cr"] == value]
-                elif column == 'Forma de obtenção do imóvel':
-                    filtered_gdf = filtered_gdf[filtered_gdf["forma_obten"] == value]
-                elif column == 'Data de obtenção do imóvel':
-                    filtered_gdf = filtered_gdf[filtered_gdf["data_obten"] == value]
+                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
         # Criar um mapa inicial centrado em uma coordenada padrão
         m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
@@ -89,7 +78,7 @@ if gdf is not None:
                               f"Área: {row['area_hecta']} hectares<br>" \
                               f"Lotes: {row['capacidade']}<br>" \
                               f"Famílias: {row['num_famili']}<br>" \
-                              f"Fase: {row['Fase']}<br>" \
+                              f"Fase: {row['fase']}<br>" \
                               f"Data de criação: {row['data_de_cr']}<br>" \
                               f"Forma de obtenção: {row['forma_obten']}<br>" \
                               f"Data de obtenção: {row['data_obten']}"
