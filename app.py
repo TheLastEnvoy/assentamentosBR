@@ -43,14 +43,18 @@ if gdf is not None:
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
-        # Botão para escolher município
-        select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Todos"] + gdf["municipio"].unique().tolist())
+        # Botão para escolher estado e município
+        select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", ["Todos"] + gdf["uf"].unique().tolist())
+        if select_uf != "Todos":
+            filtered_gdf = gdf[gdf["uf"] == select_uf]
+        else:
+            filtered_gdf = gdf
+        
+        select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Todos"] + filtered_gdf["municipio"].unique().tolist())
 
         if select_municipio != "Todos":
             # Filtrar GeoDataFrame pelo município selecionado
-            filtered_gdf = gdf[gdf["municipio"] == select_municipio]
-        else:
-            filtered_gdf = gdf  # Mostrar todos os municípios
+            filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == select_municipio]
 
         # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
         filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
