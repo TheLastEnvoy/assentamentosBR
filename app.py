@@ -34,7 +34,7 @@ if gdf is not None:
     # Remover geometrias inválidas e nulas
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
     if not gdf.empty:
-        st.title("Mapa interativo com os projetos de assentamento no Paraná")
+        st.title("Mapa interativo com os projetos de assentamento do Brasil")
         st.write("(As informações exibidas neste site são públicas)")
 
         # Botão para escolher estado e município
