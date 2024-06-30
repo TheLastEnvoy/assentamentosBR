@@ -35,6 +35,7 @@ if gdf is not None:
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
     if not gdf.empty:
         st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
+        st.write("A exibição de todos os assentamentos do país leva cerca de 40s, seja paciente")
         st.write("(As informações exibidas neste site são públicas)")
 
         # Botão para escolher estado e município
