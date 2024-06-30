@@ -72,7 +72,7 @@ if gdf is not None:
     # Adiciona o slider para a coluna 'area_hecta'
     if 'area_hecta' in gdf.columns:
         max_area = gdf['area_hecta'].max()
-        area_hecta_value = st.sidebar.slider("Escolha a área máxima (hectares):", 0, int(max_area), None)
+        area_hecta_value = st.sidebar.slider("Escolha a área máxima (hectares):", 0.0, float(max_area), None, format="%.2f", key="area_hecta", value_input_format="%.2f")
         filters['area_hecta'] = area_hecta_value
 
     filtered_gdf = gdf.copy()
