@@ -80,6 +80,7 @@ if gdf is not None:
         # Criar um mapa inicial centrado em uma coordenada padrão
         m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
+        # Verificar se há polígonos a serem adicionados
         if not filtered_gdf.empty:
             # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
             filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
