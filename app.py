@@ -16,7 +16,7 @@ def load_shapefile(file_path):
         return None
 
 # Caminho para o shapefile no repositório
-shapefile_path = "ASS_SO_1801.shp"
+shapefile_path = "pasbr1.shp"
 
 # Carregar shapefile
 gdf = load_shapefile(shapefile_path)
