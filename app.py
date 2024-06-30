@@ -15,6 +15,10 @@ def load_shapefile(file_path):
         st.error(f"Erro ao carregar shapefile: {e}")
         return None
 
+# Função para formatar a área
+def format_area(area):
+    return f"{area:,.4f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 # Caminho para o shapefile no repositório
 shapefile_path = "pasbr6.shp"
 
@@ -82,8 +86,9 @@ if gdf is not None:
             if not filtered_gdf.empty:
                 # Adicionar shapefile ao mapa com tooltips personalizados
                 for idx, row in filtered_gdf.iterrows():
+                    area_formatted = format_area(row.get('area_hecta', 0))
                     tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
-                              f"Área: {row.get('area_hecta', 'N/A')} hectares<br>" \
+                              f"Área: {area_formatted} hectares<br>" \
                               f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
                               f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
                               f"Fase: {row.get('fase', 'N/A')}<br>" \
