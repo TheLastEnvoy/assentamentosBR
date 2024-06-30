@@ -49,7 +49,7 @@ if gdf is not None:
             'num_famili': 'Famílias beneficiárias',
             'fase': 'Fase',
             'data_de_cr': 'Data de criação',
-            'forma_obten': 'Forma de obtenção do imóvel',
+            'forma_obte': 'Forma de obtenção do imóvel',
             'data_obten': 'Data de obtenção do imóvel'
         }
 
