@@ -38,21 +38,24 @@ if gdf is not None:
         st.write("(As informações exibidas neste site são públicas)")
 
         # Botão para escolher estado e município
-        select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", ["Nenhum"] + gdf["uf"].unique().tolist())
-        if select_uf != "Nenhum":
+        select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", [""] + ["Todos"] + gdf["uf"].unique().tolist())
+        filtered_gdf = pd.DataFrame()
+        
+        if select_uf == "Todos":
+            filtered_gdf = gdf
+        elif select_uf:
             filtered_gdf = gdf[gdf["uf"] == select_uf]
-        else:
-            filtered_gdf = pd.DataFrame()
 
+        select_municipio = ""
         if not filtered_gdf.empty:
-            select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Nenhum"] + filtered_gdf["municipio"].unique().tolist())
-            if select_municipio != "Nenhum":
+            select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", [""] + ["Todos"] + filtered_gdf["municipio"].unique().tolist())
+            if select_municipio == "Todos":
+                filtered_gdf = filtered_gdf
+            elif select_municipio:
                 # Filtrar GeoDataFrame pelo município selecionado
                 filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == select_municipio]
-        else:
-            select_municipio = "Nenhum"
 
-        if select_uf != "Nenhum" and select_municipio != "Nenhum":
+        if not filtered_gdf.empty and (select_uf or select_municipio):
             # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
             filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
             if not filtered_gdf.empty:
