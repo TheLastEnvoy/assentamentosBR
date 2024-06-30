@@ -60,27 +60,26 @@ if gdf is not None:
         'fase': 'Fase',
         'data_de_cr': 'Data de criação',
         'forma_obte': 'Forma de obtenção do imóvel',
-        'data_obten': 'Data de obtenção do imóvel'
+        'data_obten': 'Data de obtenção do imóvel',
+        'area_hecta': 'Área máxima (hectares)'
     }
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
         if col in gdf.columns:
-            unique_values = [""] + gdf[col].dropna().unique().tolist()
-            filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, key=col)
-
-    # Adiciona o slider para a coluna 'area_hecta'
-    if 'area_hecta' in gdf.columns:
-        max_area = gdf['area_hecta'].max()
-        area_hecta_value = st.sidebar.slider("Escolha a área máxima (hectares):", 0.0, float(max_area), None, format="%.2f", key="area_hecta")
-        filters['area_hecta'] = area_hecta_value
+            if col == 'area_hecta':
+                options = [500, 1000, 5000, 10000, 30000, 50000, 100000]
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + options, format_func=lambda x: 'Nenhum' if x is None else str(x))
+            else:
+                unique_values = [""] + gdf[col].dropna().unique().tolist()
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, key=col)
 
     filtered_gdf = gdf.copy()
     for col, value in filters.items():
-        if value:
-            if col == 'area_hecta' and value is not None:
-                filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
-            elif col != 'area_hecta':
+        if value is not None and value != "":
+            if col == 'area_hecta':
+                filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] <= value]
+            else:
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
     # Verificar se há polígonos a serem adicionados
