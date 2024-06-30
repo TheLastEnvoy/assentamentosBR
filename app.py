@@ -37,72 +37,70 @@ if gdf is not None:
 
     # Remover geometrias inválidas e nulas
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
-    if not gdf.empty:
-        st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
-        st.write("A exibição de todos os assentamentos do país leva cerca de 40s, seja paciente")
-        st.write("(As informações exibidas neste site são públicas)")
+    
+    st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
+    st.write("A exibição de todos os assentamentos do país leva cerca de 40s, seja paciente")
+    st.write("(As informações exibidas neste site são públicas)")
 
-        # Lista de colunas para filtros e seus nomes de exibição
-        filter_columns = {
-            'uf': 'Estado',
-            'municipio': 'Município',
-            'nome_proje': 'Assentamento',
-            'cd_sipra': 'Código SIPRA',
-            'capacidade': 'Lotes',
-            'num_famili': 'Famílias beneficiárias',
-            'fase': 'Fase',
-            'data_de_cr': 'Data de criação',
-            'forma_obte': 'Forma de obtenção do imóvel',
-            'data_obten': 'Data de obtenção do imóvel'
-        }
+    # Lista de colunas para filtros e seus nomes de exibição
+    filter_columns = {
+        'uf': 'Estado',
+        'municipio': 'Município',
+        'nome_proje': 'Assentamento',
+        'cd_sipra': 'Código SIPRA',
+        'capacidade': 'Lotes',
+        'num_famili': 'Famílias beneficiárias',
+        'fase': 'Fase',
+        'data_de_cr': 'Data de criação',
+        'forma_obte': 'Forma de obtenção do imóvel',
+        'data_obten': 'Data de obtenção do imóvel'
+    }
 
-        # Cria os selectboxes apenas para as colunas que existem no DataFrame
-        filters = {}
-        for col, display_name in filter_columns.items():
-            if col in gdf.columns:
-                unique_values = [""] + gdf[col].dropna().unique().tolist()
-                filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values)
+    # Cria os selectboxes apenas para as colunas que existem no DataFrame
+    filters = {}
+    for col, display_name in filter_columns.items():
+        if col in gdf.columns:
+            unique_values = [""] + gdf[col].dropna().unique().tolist()
+            filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values)
 
-        # Adiciona o slider para a coluna 'area_hecta'
-        if 'area_hecta' in gdf.columns:
-            max_area = gdf['area_hecta'].max()
-            area_hecta_value = st.slider("Escolha a área máxima (hectares):", 0, int(max_area), int(max_area))
-            filters['area_hecta'] = area_hecta_value
+    # Adiciona o slider para a coluna 'area_hecta'
+    if 'area_hecta' in gdf.columns:
+        max_area = gdf['area_hecta'].max()
+        area_hecta_value = st.slider("Escolha a área máxima (hectares):", 0, int(max_area), int(max_area))
+        filters['area_hecta'] = area_hecta_value
 
-        filtered_gdf = gdf.copy()
-        for col, value in filters.items():
-            if value:
-                if col == 'area_hecta':
-                    filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
-                else:
-                    filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
+    filtered_gdf = gdf.copy()
+    for col, value in filters.items():
+        if value:
+            if col == 'area_hecta':
+                filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
+            else:
+                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
-        # Criar um mapa inicial centrado em uma coordenada padrão
-        m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
+    # Criar um mapa inicial centrado em uma coordenada padrão
+    m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
-        # Verificar se há polígonos a serem adicionados
+    # Verificar se há polígonos a serem adicionados
+    if not filtered_gdf.empty:
+        # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
+        filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
         if not filtered_gdf.empty:
-            # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
-            filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
-            if not filtered_gdf.empty:
-                # Adicionar shapefile ao mapa com tooltips personalizados
-                for idx, row in filtered_gdf.iterrows():
-                    area_formatted = format_area(row.get('area_hecta', 0))
-                    tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
-                              f"Área: {area_formatted} hectares<br>" \
-                              f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
-                              f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
-                              f"Fase: {row.get('fase', 'N/A')}<br>" \
-                              f"Data de criação: {row.get('data_de_cr', 'N/A')}<br>" \
-                              f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
-                              f"Data de obtenção: {row.get('data_obten', 'N/A')}"
-                    folium.GeoJson(row['geometry'],
-                                   tooltip=tooltip,
-                                   ).add_to(m)
+            # Adicionar shapefile ao mapa com tooltips personalizados
+            for idx, row in filtered_gdf.iterrows():
+                area_formatted = format_area(row.get('area_hecta', 0))
+                tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
+                          f"Área: {area_formatted} hectares<br>" \
+                          f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
+                          f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
+                          f"Fase: {row.get('fase', 'N/A')}<br>" \
+                          f"Data de criação: {row.get('data_de_cr', 'N/A')}<br>" \
+                          f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
+                          f"Data de obtenção: {row.get('data_obten', 'N/A')}"
+                folium.GeoJson(row['geometry'],
+                               tooltip=tooltip,
+                               ).add_to(m)
 
-        # Exibir mapa no Streamlit
-        folium_static(m)
-    else:
-        st.error("O shapefile contém geometrias inválidas ou vazias.")
+    # Exibir mapa no Streamlit
+    folium_static(m)
 else:
     st.error("Não foi possível carregar o shapefile.")
