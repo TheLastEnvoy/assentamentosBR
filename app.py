@@ -44,8 +44,10 @@ if gdf is not None:
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
-    # Exibir mapa no Streamlit
-    folium_static(m)
+    # Verificar se há filtros selecionados
+    filters = {}
+    if st.sidebar.button("Limpar filtros"):
+        filters = {}
 
     # Lista de colunas para filtros e seus nomes de exibição
     filter_columns = {
@@ -62,16 +64,15 @@ if gdf is not None:
     }
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
-    filters = {}
     for col, display_name in filter_columns.items():
         if col in gdf.columns:
             unique_values = [""] + gdf[col].dropna().unique().tolist()
-            filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values)
+            filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, key=col)
 
     # Adiciona o slider para a coluna 'area_hecta'
     if 'area_hecta' in gdf.columns:
         max_area = gdf['area_hecta'].max()
-        area_hecta_value = st.slider("Escolha a área máxima (hectares):", 0, int(max_area), None)
+        area_hecta_value = st.sidebar.slider("Escolha a área máxima (hectares):", 0, int(max_area), None)
         filters['area_hecta'] = area_hecta_value
 
     filtered_gdf = gdf.copy()
