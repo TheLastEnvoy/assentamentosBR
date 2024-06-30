@@ -32,7 +32,8 @@ if gdf is not None:
             st.stop()
 
     # Verificar se o GeoDataFrame tem geometria válida e não nula
-    if gdf.geometry.is_valid.all() and gdf.geometry.notna().all():
+    gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
+    if not gdf.empty:
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
@@ -46,7 +47,8 @@ if gdf is not None:
             filtered_gdf = gdf  # Mostrar todos os municípios
 
         # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
-        if filtered_gdf.geometry.is_valid.all() and filtered_gdf.geometry.notna().all():
+        filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
+        if not filtered_gdf.empty:
             # Calcular centroides
             filtered_gdf['centroid'] = filtered_gdf.geometry.centroid
 
