@@ -37,6 +37,10 @@ if gdf is not None:
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
+        # Criar um mapa inicial centrado em uma coordenada padrão
+        m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
+        folium_static(m)
+
         # Botão para escolher estado e município
         select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", [""] + ["Todos"] + gdf["uf"].unique().tolist())
         filtered_gdf = pd.DataFrame()
@@ -76,7 +80,7 @@ if gdf is not None:
                     st.error("As coordenadas médias dos centroides são inválidas (contêm NaNs).")
                     st.stop()
 
-                # Criar mapa com Folium
+                # Criar mapa com Folium centrado na média dos centroides
                 m = folium.Map(location=[centroid_y_mean, centroid_x_mean], zoom_start=8)
 
                 # Adicionar shapefile ao mapa com tooltips personalizados
