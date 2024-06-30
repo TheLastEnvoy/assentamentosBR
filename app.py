@@ -31,18 +31,19 @@ if gdf is not None:
             st.error(f"Erro ao reprojetar para EPSG:4326: {e}")
             st.stop()
 
-    # Identificar e exibir geometrias inválidas
-    invalid_geometries = gdf[~gdf.geometry.is_valid | gdf.geometry.isna()]
-    if not invalid_geometries.empty:
-        st.warning("Algumas geometrias são inválidas ou vazias:")
-        st.write(invalid_geometries)
-
-    # Remover geometrias inválidas e nulas
+    # Verificar e filtrar geometrias inválidas ou nulas
+    invalid_gdf = gdf[~gdf.geometry.is_valid | gdf.geometry.isna()]
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
+
     if not gdf.empty:
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
+        # Exibir geometrias inválidas, se existirem
+        if not invalid_gdf.empty:
+            st.write("Geometrias inválidas ou vazias encontradas no shapefile:")
+            st.write(invalid_gdf)
+        
         # Botão para escolher município
         select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Todos"] + gdf["municipio"].unique().tolist())
 
