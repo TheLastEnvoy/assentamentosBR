@@ -34,60 +34,61 @@ if gdf is not None:
     # Remover geometrias inválidas e nulas
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
     if not gdf.empty:
-        st.title("Mapa interativo com os projetos de assentamento do Brasil")
-        st.write("Aguarde o carregamento, são mais de 7000 imóveis")
+        st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
-
         # Botão para escolher estado e município
-        select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", ["Todos"] + gdf["uf"].unique().tolist())
-        if select_uf != "Todos":
+        select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", ["Nenhum"] + gdf["uf"].unique().tolist())
+        if select_uf != "Nenhum":
             filtered_gdf = gdf[gdf["uf"] == select_uf]
         else:
-            filtered_gdf = gdf
-        
-        select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Todos"] + filtered_gdf["municipio"].unique().tolist())
+            filtered_gdf = pd.DataFrame()
 
-        if select_municipio != "Todos":
-            # Filtrar GeoDataFrame pelo município selecionado
-            filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == select_municipio]
-
-        # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
-        filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
         if not filtered_gdf.empty:
-            # Calcular centroides
-            filtered_gdf['centroid'] = filtered_gdf.geometry.centroid
-
-            # Verificar NaNs nos centroides
-            if filtered_gdf['centroid'].isna().any():
-                st.error("O shapefile filtrado contém centroides inválidos ou vazios.")
-                st.stop()
-
-            # Obter coordenadas médias dos centroides
-            centroid_y_mean = filtered_gdf['centroid'].y.mean()
-            centroid_x_mean = filtered_gdf['centroid'].x.mean()
-
-            # Verificar se as coordenadas médias são válidas
-            if pd.isna(centroid_y_mean) or pd.isna(centroid_x_mean):
-                st.error("As coordenadas médias dos centroides são inválidas (contêm NaNs).")
-                st.stop()
-
-            # Criar mapa com Folium
-            m = folium.Map(location=[centroid_y_mean, centroid_x_mean], zoom_start=8)
-
-            # Adicionar shapefile ao mapa com tooltips personalizados
-            for idx, row in filtered_gdf.iterrows():
-                tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
-                          f"Área: {row['area_hecta']} hectares<br>" \
-                          f"Lotes: {row['capacidade']}"
-                folium.GeoJson(row['geometry'],
-                               tooltip=tooltip,
-                               ).add_to(m)
-
-            # Exibir mapa no Streamlit
-            folium_static(m)
+            select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", ["Nenhum"] + filtered_gdf["municipio"].unique().tolist())
+            if select_municipio != "Nenhum":
+                # Filtrar GeoDataFrame pelo município selecionado
+                filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == select_municipio]
         else:
-            st.error("O shapefile filtrado contém geometrias inválidas ou vazias.")
+            select_municipio = "Nenhum"
+
+        if select_uf != "Nenhum" and select_municipio != "Nenhum":
+            # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
+            filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
+            if not filtered_gdf.empty:
+                # Calcular centroides
+                filtered_gdf['centroid'] = filtered_gdf.geometry.centroid
+
+                # Verificar NaNs nos centroides
+                if filtered_gdf['centroid'].isna().any():
+                    st.error("O shapefile filtrado contém centroides inválidos ou vazios.")
+                    st.stop()
+
+                # Obter coordenadas médias dos centroides
+                centroid_y_mean = filtered_gdf['centroid'].y.mean()
+                centroid_x_mean = filtered_gdf['centroid'].x.mean()
+
+                # Verificar se as coordenadas médias são válidas
+                if pd.isna(centroid_y_mean) or pd.isna(centroid_x_mean):
+                    st.error("As coordenadas médias dos centroides são inválidas (contêm NaNs).")
+                    st.stop()
+
+                # Criar mapa com Folium
+                m = folium.Map(location=[centroid_y_mean, centroid_x_mean], zoom_start=8)
+
+                # Adicionar shapefile ao mapa com tooltips personalizados
+                for idx, row in filtered_gdf.iterrows():
+                    tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
+                              f"Área: {row['area_hecta']} hectares<br>" \
+                              f"Lotes: {row['capacidade']}"
+                    folium.GeoJson(row['geometry'],
+                                   tooltip=tooltip,
+                                   ).add_to(m)
+
+                # Exibir mapa no Streamlit
+                folium_static(m)
+            else:
+                st.error("O shapefile filtrado contém geometrias inválidas ou vazias.")
     else:
         st.error("O shapefile contém geometrias inválidas ou vazias.")
 else:
