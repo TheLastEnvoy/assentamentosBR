@@ -66,15 +66,15 @@ if gdf is not None:
     # Adiciona o slider para a coluna 'area_hecta'
     if 'area_hecta' in gdf.columns:
         max_area = gdf['area_hecta'].max()
-        area_hecta_value = st.slider("Escolha a área máxima (hectares):", 0, int(max_area), int(max_area))
+        area_hecta_value = st.slider("Escolha a área máxima (hectares):", 0, int(max_area), None)
         filters['area_hecta'] = area_hecta_value
 
     filtered_gdf = gdf.copy()
     for col, value in filters.items():
         if value:
-            if col == 'area_hecta':
+            if col == 'area_hecta' and value is not None:
                 filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
-            else:
+            elif col != 'area_hecta':
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
     # Criar um mapa inicial centrado em uma coordenada padrão
