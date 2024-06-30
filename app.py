@@ -68,7 +68,7 @@ if gdf is not None:
             max_area = gdf['area_hecta'].max()
             area_hecta_value = st.slider(
                 "Escolha a área máxima (hectares):",
-                0, int(max_area), int(max_area),
+                min_value=0, max_value=int(max_area), value=int(max_area),
                 format_func=format_area
             )
             filters['area_hecta'] = area_hecta_value
