@@ -65,14 +65,14 @@ if gdf is not None:
     }
 
     # Opções para seleção de lotes e famílias beneficiárias
-    options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000, 20000]
+    options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000]
     options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
         if col in gdf.columns:
             if col in ['capacidade', 'num_famili']:
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + eval(f"options_{col}"), format_func=lambda x: 'Nenhum' if x is None else str(x))
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + options_lotes, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'area_hecta':
                 options = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + options, format_func=lambda x: 'Nenhum' if x is None else str(x))
