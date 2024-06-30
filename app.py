@@ -74,14 +74,14 @@ if gdf is not None:
             if not filtered_gdf.empty:
                 # Adicionar shapefile ao mapa com tooltips personalizados
                 for idx, row in filtered_gdf.iterrows():
-                    tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
-                              f"Área: {row['area_hecta']} hectares<br>" \
-                              f"Lotes: {row['capacidade']}<br>" \
-                              f"Famílias: {row['num_famili']}<br>" \
-                              f"Fase: {row['fase']}<br>" \
-                              f"Data de criação: {row['data_de_cr']}<br>" \
-                              f"Forma de obtenção: {row['forma_obten']}<br>" \
-                              f"Data de obtenção: {row['data_obten']}"
+                    tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
+                              f"Área: {row.get('area_hecta', 'N/A')} hectares<br>" \
+                              f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
+                              f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
+                              f"Fase: {row.get('fase', 'N/A')}<br>" \
+                              f"Data de criação: {row.get('data_de_cr', 'N/A')}<br>" \
+                              f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
+                              f"Data de obtenção: {row.get('data_obten', 'N/A')}"
                     folium.GeoJson(row['geometry'],
                                    tooltip=tooltip,
                                    ).add_to(m)
