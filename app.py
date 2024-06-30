@@ -35,7 +35,9 @@ if gdf is not None:
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
     if not gdf.empty:
         st.title("Mapa interativo com os projetos de assentamento do Brasil")
+        st.write("Aguarde o carregamento, são mais de 7000 imóveis")
         st.write("(As informações exibidas neste site são públicas)")
+
 
         # Botão para escolher estado e município
         select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", ["Todos"] + gdf["uf"].unique().tolist())
