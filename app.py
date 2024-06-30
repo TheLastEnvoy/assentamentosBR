@@ -23,21 +23,16 @@ gdf = load_shapefile(shapefile_path)
 
 # Verificar se o shapefile foi carregado com sucesso
 if gdf is not None:
-    # st.write(gdf.head())  # Removido para omitir a tabela de dados
-    # st.write(f"Tipo de geometria: {gdf.geom_type.unique()}")  # Removido para omitir a tabela de dados
-    # st.write(f"CRS: {gdf.crs}")  # Removido para omitir a tabela de dados
-    
     # Verificar se o CRS é WGS84 (EPSG:4326), caso contrário, reprojetar
     if gdf.crs != "EPSG:4326":
         try:
             gdf = gdf.to_crs("EPSG:4326")
-            # st.write(f"Reprojetado para: {gdf.crs}")  # Removido para omitir a tabela de dados
         except Exception as e:
             st.error(f"Erro ao reprojetar para EPSG:4326: {e}")
             st.stop()
 
-    # Verificar se o GeoDataFrame tem geometria válida
-    if gdf.geometry.is_valid.all():
+    # Verificar se o GeoDataFrame tem geometria válida e não nula
+    if gdf.geometry.is_valid.all() and gdf.geometry.notna().all():
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
@@ -50,22 +45,26 @@ if gdf is not None:
         else:
             filtered_gdf = gdf  # Mostrar todos os municípios
 
-        # Criar mapa com Folium
-        centroid = filtered_gdf.geometry.centroid
-        m = folium.Map(location=[centroid.y.mean(), centroid.x.mean()], zoom_start=8)
+        # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
+        if filtered_gdf.geometry.is_valid.all() and filtered_gdf.geometry.notna().all():
+            # Criar mapa com Folium
+            centroid = filtered_gdf.geometry.centroid
+            m = folium.Map(location=[centroid.y.mean(), centroid.x.mean()], zoom_start=8)
 
-        # Adicionar shapefile ao mapa com tooltips personalizados
-        for idx, row in filtered_gdf.iterrows():
-            tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
-                      f"Área: {row['area_hecta']} hectares<br>" \
-                      f"Lotes: {row['capacidade']}"
-            folium.GeoJson(row['geometry'],
-                           tooltip=tooltip,
-                           ).add_to(m)
+            # Adicionar shapefile ao mapa com tooltips personalizados
+            for idx, row in filtered_gdf.iterrows():
+                tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
+                          f"Área: {row['area_hecta']} hectares<br>" \
+                          f"Lotes: {row['capacidade']}"
+                folium.GeoJson(row['geometry'],
+                               tooltip=tooltip,
+                               ).add_to(m)
 
-        # Exibir mapa no Streamlit
-        folium_static(m)
+            # Exibir mapa no Streamlit
+            folium_static(m)
+        else:
+            st.error("O shapefile filtrado contém geometrias inválidas ou vazias.")
     else:
-        st.error("O shapefile contém geometrias inválidas.")
+        st.error("O shapefile contém geometrias inválidas ou vazias.")
 else:
     st.error("Não foi possível carregar o shapefile.")
