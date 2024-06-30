@@ -44,7 +44,6 @@ if gdf is not None:
             'municipio': 'Município',
             'nome_proje': 'Assentamento',
             'cd_sipra': 'Código SIPRA',
-            'area_hecta': 'Área (hectares)',
             'capacidade': 'Lotes',
             'num_famili': 'Famílias beneficiárias',
             'fase': 'Fase',
@@ -60,10 +59,19 @@ if gdf is not None:
                 unique_values = [""] + gdf[col].dropna().unique().tolist()
                 filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values)
 
+        # Adiciona o slider para a coluna 'area_hecta'
+        if 'area_hecta' in gdf.columns:
+            max_area = gdf['area_hecta'].max()
+            area_hecta_value = st.slider("Escolha a área máxima (hectares):", 0, int(max_area), int(max_area))
+            filters['area_hecta'] = area_hecta_value
+
         filtered_gdf = gdf.copy()
         for col, value in filters.items():
             if value:
-                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
+                if col == 'area_hecta':
+                    filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
+                else:
+                    filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
         # Criar um mapa inicial centrado em uma coordenada padrão
         m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
