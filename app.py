@@ -61,47 +61,47 @@ if gdf is not None:
         for col, display_name in filter_columns.items():
             if col in gdf.columns:
                 unique_values = [""] + gdf[col].dropna().unique().tolist()
-                filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values)
+                filters[col] = st.selectbox(f"Escolha {display_name}:", unique_values, key=col)
 
         # Adiciona o slider para a coluna 'area_hecta'
         if 'area_hecta' in gdf.columns:
             max_area = gdf['area_hecta'].max()
             area_hecta_value = st.slider(
                 "Escolha a área máxima (hectares):",
-                min_value=0, max_value=int(max_area), value=int(max_area),
+                min_value=0.0, max_value=float(max_area), value=float(max_area),
                 format_func=format_area
             )
             filters['area_hecta'] = area_hecta_value
 
         filtered_gdf = gdf.copy()
         for col, value in filters.items():
-            if value:
-                if col == 'area_hecta':
-                    filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
-                else:
-                    filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
+            if value and col != 'area_hecta':
+                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
+            elif col == 'area_hecta':
+                filtered_gdf = filtered_gdf[filtered_gdf[col] <= value]
 
         # Criar um mapa inicial centrado em uma coordenada padrão
         m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
-        if not filtered_gdf.empty:
-            # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
-            filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
+        if any(filters.values()):
             if not filtered_gdf.empty:
-                # Adicionar shapefile ao mapa com tooltips personalizados
-                for idx, row in filtered_gdf.iterrows():
-                    area_formatted = format_area(row.get('area_hecta', 0))
-                    tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
-                              f"Área: {area_formatted} hectares<br>" \
-                              f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
-                              f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
-                              f"Fase: {row.get('fase', 'N/A')}<br>" \
-                              f"Data de criação: {row.get('data_de_cr', 'N/A')}<br>" \
-                              f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
-                              f"Data de obtenção: {row.get('data_obten', 'N/A')}"
-                    folium.GeoJson(row['geometry'],
-                                   tooltip=tooltip,
-                                   ).add_to(m)
+                # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
+                filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
+                if not filtered_gdf.empty:
+                    # Adicionar shapefile ao mapa com tooltips personalizados
+                    for idx, row in filtered_gdf.iterrows():
+                        area_formatted = format_area(row.get('area_hecta', 0))
+                        tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
+                                  f"Área: {area_formatted} hectares<br>" \
+                                  f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
+                                  f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
+                                  f"Fase: {row.get('fase', 'N/A')}<br>" \
+                                  f"Data de criação: {row.get('data_de_cr', 'N/A')}<br>" \
+                                  f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
+                                  f"Data de obtenção: {row.get('data_obten', 'N/A')}"
+                        folium.GeoJson(row['geometry'],
+                                       tooltip=tooltip,
+                                       ).add_to(m)
 
         # Exibir mapa no Streamlit
         folium_static(m)
