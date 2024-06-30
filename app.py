@@ -39,8 +39,13 @@ if gdf is not None:
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
     
     st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
-    st.write("A exibição de todos os assentamentos do país leva cerca de 40s, seja paciente")
     st.write("(As informações exibidas neste site são públicas)")
+
+    # Criar um mapa inicial centrado em uma coordenada padrão
+    m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
+
+    # Exibir mapa no Streamlit
+    folium_static(m)
 
     # Lista de colunas para filtros e seus nomes de exibição
     filter_columns = {
@@ -77,9 +82,6 @@ if gdf is not None:
             elif col != 'area_hecta':
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
-    # Criar um mapa inicial centrado em uma coordenada padrão
-    m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
-
     # Verificar se há polígonos a serem adicionados
     if not filtered_gdf.empty:
         # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
@@ -100,7 +102,7 @@ if gdf is not None:
                                tooltip=tooltip,
                                ).add_to(m)
 
-    # Exibir mapa no Streamlit
+    # Exibir mapa no Streamlit novamente para refletir as mudanças
     folium_static(m)
 else:
     st.error("Não foi possível carregar o shapefile.")
