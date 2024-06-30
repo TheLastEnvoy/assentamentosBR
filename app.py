@@ -31,7 +31,13 @@ if gdf is not None:
             st.error(f"Erro ao reprojetar para EPSG:4326: {e}")
             st.stop()
 
-    # Verificar se o GeoDataFrame tem geometria válida e não nula
+    # Identificar e exibir geometrias inválidas
+    invalid_geometries = gdf[~gdf.geometry.is_valid | gdf.geometry.isna()]
+    if not invalid_geometries.empty:
+        st.warning("Algumas geometrias são inválidas ou vazias:")
+        st.write(invalid_geometries)
+
+    # Remover geometrias inválidas e nulas
     gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
     if not gdf.empty:
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
@@ -62,7 +68,7 @@ if gdf is not None:
             centroid_x_mean = filtered_gdf['centroid'].x.mean()
 
             # Verificar se as coordenadas médias são válidas
-            if pd.isna(centroid_y_mean) or pd.isna(centroid_x_mean):
+            if pd.isna(centroid_y_mean) ou pd.isna(centroid_x_mean):
                 st.error("As coordenadas médias dos centroides são inválidas (contêm NaNs).")
                 st.stop()
 
