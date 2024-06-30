@@ -31,15 +31,8 @@ if gdf is not None:
             st.error(f"Erro ao reprojetar para EPSG:4326: {e}")
             st.stop()
 
-    # Identificar e exibir geometrias inválidas
-    invalid_geometries = gdf[~gdf.geometry.is_valid | gdf.geometry.isna()]
-    if not invalid_geometries.empty:
-        st.warning("Algumas geometrias são inválidas ou vazias:")
-        st.write(invalid_geometries)
-
-    # Remover geometrias inválidas e nulas
-    gdf = gdf[gdf.geometry.is_valid & gdf.geometry.notna()]
-    if not gdf.empty:
+    # Verificar se o GeoDataFrame tem geometria válida e não nula
+    if gdf.geometry.is_valid.all() and gdf.geometry.notna().all():
         st.title("Mapa interativo com os projetos de assentamento no Paraná")
         st.write("(As informações exibidas neste site são públicas)")
 
@@ -53,27 +46,10 @@ if gdf is not None:
             filtered_gdf = gdf  # Mostrar todos os municípios
 
         # Verificar novamente se o GeoDataFrame filtrado tem geometria válida e não nula
-        filtered_gdf = filtered_gdf[filtered_gdf.geometry.is_valid & filtered_gdf.geometry.notna()]
-        if not filtered_gdf.empty:
-            # Calcular centroides
-            filtered_gdf['centroid'] = filtered_gdf.geometry.centroid
-
-            # Verificar NaNs nos centroides
-            if filtered_gdf['centroid'].isna().any():
-                st.error("O shapefile filtrado contém centroides inválidos ou vazios.")
-                st.stop()
-
-            # Obter coordenadas médias dos centroides
-            centroid_y_mean = filtered_gdf['centroid'].y.mean()
-            centroid_x_mean = filtered_gdf['centroid'].x.mean()
-
-            # Verificar se as coordenadas médias são válidas
-            if pd.isna(centroid_y_mean) or pd.isna(centroid_x_mean):
-                st.error("As coordenadas médias dos centroides são inválidas (contêm NaNs).")
-                st.stop()
-
+        if filtered_gdf.geometry.is_valid.all() and filtered_gdf.geometry.notna().all():
             # Criar mapa com Folium
-            m = folium.Map(location=[centroid_y_mean, centroid_x_mean], zoom_start=8)
+            centroid = filtered_gdf.geometry.centroid
+            m = folium.Map(location=[centroid.y.mean(), centroid.x.mean()], zoom_start=8)
 
             # Adicionar shapefile ao mapa com tooltips personalizados
             for idx, row in filtered_gdf.iterrows():
