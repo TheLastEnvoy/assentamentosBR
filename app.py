@@ -38,22 +38,43 @@ if gdf is not None:
         st.write("A exibição de todos os assentamentos do país leva cerca de 40s, seja paciente")
         st.write("(As informações exibidas neste site são públicas)")
 
-        # Botão para escolher estado e município
-        select_uf = st.selectbox("Escolha um estado para visualizar no mapa:", [""] + ["Todos"] + gdf["uf"].unique().tolist(), index=0)
-        filtered_gdf = pd.DataFrame()
+        # Botões para escolher filtros
+        filters = {
+            'Estado': st.selectbox("Escolha um estado:", [""] + gdf["uf"].unique().tolist()),
+            'Município': st.selectbox("Escolha um município:", [""] + gdf["municipio"].unique().tolist()),
+            'Assentamento': st.selectbox("Escolha um assentamento:", [""] + gdf["nome_proje"].unique().tolist()),
+            'Código SIPRA': st.selectbox("Escolha um código SIPRA:", [""] + gdf["cd_sipra"].unique().tolist()),
+            'Área (hectares)': st.selectbox("Escolha uma área:", [""] + gdf["area_hecta"].unique().tolist()),
+            'Lotes': st.selectbox("Escolha a capacidade (lotes):", [""] + gdf["capacidade"].unique().tolist()),
+            'Fase': st.selectbox("Escolha uma fase:", [""] + gdf["Fase"].unique().tolist()),
+            'Data de criação': st.selectbox("Escolha uma data de criação:", [""] + gdf["data_de_cr"].unique().tolist()),
+            'Forma de obtenção do imóvel': st.selectbox("Escolha a forma de obtenção do imóvel:", [""] + gdf["forma_obten"].unique().tolist()),
+            'Data de obtenção do imóvel': st.selectbox("Escolha uma data de obtenção do imóvel:", [""] + gdf["data_obten"].unique().tolist()),
+        }
 
-        if select_uf == "Todos":
-            filtered_gdf = gdf
-        elif select_uf:
-            filtered_gdf = gdf[gdf["uf"] == select_uf]
-
-        if not filtered_gdf.empty:
-            select_municipio = st.selectbox("Escolha um município para visualizar no mapa:", [""] + ["Todos"] + filtered_gdf["municipio"].unique().tolist(), index=0)
-            if select_municipio == "Todos":
-                filtered_gdf = filtered_gdf
-            elif select_municipio:
-                # Filtrar GeoDataFrame pelo município selecionado
-                filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == select_municipio]
+        filtered_gdf = gdf.copy()
+        for column, value in filters.items():
+            if value:
+                if column == 'Estado':
+                    filtered_gdf = filtered_gdf[filtered_gdf["uf"] == value]
+                elif column == 'Município':
+                    filtered_gdf = filtered_gdf[filtered_gdf["municipio"] == value]
+                elif column == 'Assentamento':
+                    filtered_gdf = filtered_gdf[filtered_gdf["nome_proje"] == value]
+                elif column == 'Código SIPRA':
+                    filtered_gdf = filtered_gdf[filtered_gdf["cd_sipra"] == value]
+                elif column == 'Área (hectares)':
+                    filtered_gdf = filtered_gdf[filtered_gdf["area_hecta"] == value]
+                elif column == 'Lotes':
+                    filtered_gdf = filtered_gdf[filtered_gdf["capacidade"] == value]
+                elif column == 'Fase':
+                    filtered_gdf = filtered_gdf[filtered_gdf["Fase"] == value]
+                elif column == 'Data de criação':
+                    filtered_gdf = filtered_gdf[filtered_gdf["data_de_cr"] == value]
+                elif column == 'Forma de obtenção do imóvel':
+                    filtered_gdf = filtered_gdf[filtered_gdf["forma_obten"] == value]
+                elif column == 'Data de obtenção do imóvel':
+                    filtered_gdf = filtered_gdf[filtered_gdf["data_obten"] == value]
 
         # Criar um mapa inicial centrado em uma coordenada padrão
         m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
@@ -66,7 +87,12 @@ if gdf is not None:
                 for idx, row in filtered_gdf.iterrows():
                     tooltip = f"<b>{row['nome_proje']} (Assentamento)</b><br>" \
                               f"Área: {row['area_hecta']} hectares<br>" \
-                              f"Lotes: {row['capacidade']}"
+                              f"Lotes: {row['capacidade']}<br>" \
+                              f"Famílias: {row['num_famili']}<br>" \
+                              f"Fase: {row['Fase']}<br>" \
+                              f"Data de criação: {row['data_de_cr']}<br>" \
+                              f"Forma de obtenção: {row['forma_obten']}<br>" \
+                              f"Data de obtenção: {row['data_obten']}"
                     folium.GeoJson(row['geometry'],
                                    tooltip=tooltip,
                                    ).add_to(m)
