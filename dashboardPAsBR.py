@@ -5,6 +5,8 @@ from streamlit_folium import folium_static
 import streamlit as st
 import json
 from shapely.geometry import mapping  # Importar mapping corretamente
+from folium.plugins import DualMap
+from branca.element import Figure
 
 # Função para carregar shapefile
 def load_shapefile(file_path):
@@ -46,78 +48,32 @@ if gdf is not None:
     st.write("Contato: 6dsvj@pm.me")
 
     # Criar um mapa inicial centrado em uma coordenada padrão
-    m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
+    fig = Figure(width=1000, height=600)
+    map_left = fig.add_subplot(1, 2, 1)
+    map_right = fig.add_subplot(1, 2, 2)
 
-    # Verificar se há filtros selecionados
-    filters = {}
+    dual_map = DualMap(location=[-24.0, -51.0], zoom_start=7, tiles=None, layout=(1, 2), control_scale=True)
+    m = dual_map.m1
 
-    # Lista de colunas para filtros e seus nomes de exibição
-    filter_columns = {
-        'uf': 'um estado',
-        'municipio': 'um município',
-        'nome_pa': 'um assentamento',
-        'cd_sipra': 'um código SIPRA',
-        'lotes': 'o total de lotes',
-        'quant_fami': 'a quantidade de famílias beneficiárias',
-        'fase': 'uma fase de consolidação',
-        'data_criac': 'a data de criação',
-        'forma_obte': 'a forma de obtenção do imóvel',
-        'data_obten': 'a data de obtenção do imóvel',
-        'area_incra_min': 'a área mínima (hectares) segundo dados do INCRA',
-        'area_incra': 'a área máxima (hectares) segundo dados do INCRA',
-        'area_polig_min': 'a área mínima (hectares) segundo polígono',
-        'area_polig': 'a área máxima (hectares) segundo polígono'
+    # Basemaps disponíveis para seleção
+    basemaps = {
+        "OpenStreetMap": folium.TileLayer("openstreetmap"),
+        "Stamen Terrain": folium.TileLayer("stamenterrain"),
+        "Stamen Toner": folium.TileLayer("stamentoner"),
+        "Esri Satellite": folium.TileLayer("esrisatellite"),
+        # Adicione outros basemaps conforme desejado
     }
 
-    # Opções para seleção de lotes, famílias beneficiárias e áreas
-    options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000, 20000]
-    options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
-    options_area_incra = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000, 400000, 600000]
+    # Adicionar basemaps ao DualMap
+    for name, tile in basemaps.items():
+        tile.add_to(dual_map.m2)
 
-    # Definir Paraná como o estado inicialmente selecionado
-    selected_state = 'PARANÁ'
-
-    # Cria os selectboxes apenas para as colunas que existem no DataFrame
-    for col, display_name in filter_columns.items():
-        if col in gdf.columns or col in ['area_incra_min', 'area_polig_min']:
-            if col == 'uf':
-                options = [''] + sorted(gdf[col].dropna().unique().tolist())
-                default_index = options.index(selected_state) if selected_state in options else 0
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, index=default_index)
-            elif col in ['lotes', 'quant_fami']:
-                options = [None] + sorted(options_lotes)
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
-            elif col in ['area_incra', 'area_incra_min', 'area_polig', 'area_polig_min']:
-                options = [None] + sorted(options_area_incra)
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
-            elif col == 'data_criac':
-                filters[col] = st.sidebar.date_input(f"Escolha {display_name}:", min_value=pd.to_datetime("1970-01-01"), max_value=pd.to_datetime("2034-12-31"))
-            else:
-                unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, format_func=lambda x: 'Nenhum' if x == "" else str(x))
-
-    filtered_gdf = gdf.copy()
-    for col, value in filters.items():
-        if value is not None and value != "":
-            if col == 'area_incra':
-                filtered_gdf = filtered_gdf[filtered_gdf['area_incra'] <= value]
-            elif col == 'area_incra_min':
-                filtered_gdf = filtered_gdf[filtered_gdf['area_incra'] >= value]
-            elif col == 'area_polig':
-                filtered_gdf = filtered_gdf[filtered_gdf['area_polig'] <= value]
-            elif col == 'area_polig_min':
-                filtered_gdf = filtered_gdf[filtered_gdf['area_polig'] >= value]
-            elif col == 'lotes':
-                filtered_gdf = filtered_gdf[filtered_gdf['lotes'] <= value]
-            elif col == 'quant_fami':
-                filtered_gdf = filtered_gdf[filtered_gdf['quant_fami'] <= value]
-            elif col == 'data_criac':
-                filtered_gdf = filtered_gdf[pd.to_datetime(filtered_gdf['data_criac'], errors='coerce') <= pd.to_datetime(value)]
-            else:
-                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
+    # Selecionar o basemap padrão
+    selected_basemap = st.sidebar.selectbox("Escolha um mapa de fundo:", list(basemaps.keys()))
+    dual_map.m2 = basemaps[selected_basemap]
 
     # Adicionar polígonos filtrados ao mapa com tooltips personalizados
-    for idx, row in filtered_gdf.iterrows():
+    for idx, row in gdf.iterrows():
         area_formatted = format_area(row.get('area_incra', 0))
         area_polig_formatted = format_area(row.get('area_polig', 0))
         tooltip = f"<b>{row.get('nome_pa', 'N/A')} (Assentamento)</b><br>" \
@@ -134,12 +90,12 @@ if gdf is not None:
                        ).add_to(m)
 
     # Exibir mapa no Streamlit novamente para refletir as mudanças
-    folium_static(m)
+    folium_static(dual_map)
 
     # Função para baixar os polígonos filtrados como GeoJSON
     def download_geojson():
         selected_features = []
-        for idx, row in filtered_gdf.iterrows():
+        for idx, row in gdf.iterrows():
             geom = row['geometry']
             feature = {
                 'type': 'Feature',
@@ -178,18 +134,18 @@ if gdf is not None:
     )
 
     # Reordenar as colunas conforme especificado
-    filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
+    gdf = gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
 
     # Exibir tabela com os dados filtrados
     st.write("Tabela de dados:")
-    st.dataframe(filtered_gdf)
+    st.dataframe(gdf)
 
     # Função para converter DataFrame para CSV
     @st.cache
     def convert_df(df):
         return df.to_csv(index=False).encode('utf-8')
 
-    csv = convert_df(filtered_gdf)
+    csv = convert_df(gdf)
 
     # Botão para baixar os dados filtrados como CSV
     st.download_button(
