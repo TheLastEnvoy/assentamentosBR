@@ -133,5 +133,24 @@ if gdf is not None:
     # Exibir mapa no Streamlit novamente para refletir as mudanças
     folium_static(m)
 
+    # Exibir tabela com os dados filtrados
+    st.write("Tabela de dados filtrados:")
+    st.dataframe(filtered_gdf.drop(columns='geometry'))
+
+    # Função para converter DataFrame para CSV
+    @st.cache_data
+    def convert_df(df):
+        return df.to_csv(index=False).encode('utf-8')
+
+    csv = convert_df(filtered_gdf.drop(columns='geometry'))
+
+    # Botão para baixar os dados filtrados como CSV
+    st.download_button(
+        label="Baixar dados filtrados como CSV",
+        data=csv,
+        file_name='dados_filtrados.csv',
+        mime='text/csv',
+    )
+
 else:
     st.error("Não foi possível carregar o shapefile.")
