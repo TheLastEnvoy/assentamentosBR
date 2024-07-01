@@ -60,8 +60,8 @@ if gdf is not None:
         'data_de_cr': 'a data de criação',
         'forma_obte': 'a forma de obtenção do imóvel',
         'data_obten': 'a data de obtenção do imóvel',
-        'area_hecta_min': 'a área mínima (hectares)',
-        'area_hecta': 'a área máxima (hectares)',
+        'area_hecta_min': 'a área mínima (hectares) segundo dados do INCRA',
+        'area_hecta': 'a área máxima (hectares) segundo dados do INCRA',
         'area2_min': 'a área mínima (hectares) segundo polígono',
         'area2': 'a área máxima (hectares) segundo polígono'
     }
