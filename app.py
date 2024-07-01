@@ -90,9 +90,11 @@ if gdf is not None:
         if value is not None and value != "":
             if col == 'area_hecta':
                 filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] <= value]
-            elif col == 'capacidade' or col == 'num_famili':
-                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
-            elif col == 'uf' and value != "":
+            elif col == 'capacidade':
+                filtered_gdf = filtered_gdf[filtered_gdf['capacidade'] <= value]
+            elif col == 'num_famili':
+                filtered_gdf = filtered_gdf[filtered_gdf['num_famili'] <= value]
+            else:
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
     # Adicionar polígonos filtrados ao mapa com tooltips personalizados
