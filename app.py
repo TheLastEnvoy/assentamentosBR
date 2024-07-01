@@ -84,7 +84,7 @@ if gdf is not None:
                 options = [None] + sorted(options_area_hecta)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'data_de_cr':
-                filters[col] = st.sidebar.date_input(f"Escolha {display_name}:")
+                filters[col] = st.sidebar.date_input(f"Escolha {display_name}:", min_value=pd.to_datetime("1970-01-01"), max_value=pd.to_datetime("2034-12-31"))
             else:
                 unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, format_func=lambda x: 'Nenhum' if x == "" else str(x))
