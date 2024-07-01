@@ -64,9 +64,10 @@ if gdf is not None:
         'area_hecta': 'Área máxima (hectares)'
     }
 
-    # Opções para seleção de lotes e famílias beneficiárias
+    # Opções para seleção de lotes, famílias beneficiárias e área máxima
     options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000]
     options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
+    options_area_hecta = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
@@ -74,11 +75,10 @@ if gdf is not None:
             if col in ['capacidade', 'num_famili']:
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + options_lotes, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'area_hecta':
-                options = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + options, format_func=lambda x: 'Nenhum' if x is None else str(x))
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + options_area_hecta, format_func=lambda x: 'Nenhum' if x is None else str(x))
             else:
                 unique_values = [""] + gdf[col].dropna().unique().tolist()
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, key=col)
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [None] + unique_values, format_func=lambda x: 'Nenhum' if x is None else str(x))
 
     filtered_gdf = gdf.copy()
     for col, value in filters.items():
