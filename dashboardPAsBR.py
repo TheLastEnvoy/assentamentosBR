@@ -41,6 +41,7 @@ if gdf is not None:
     
     st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
     st.write("(As informações exibidas neste site são públicas)")
+        st.write("Contato: 6dsvj@pm.me")
 
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
@@ -137,7 +138,7 @@ if gdf is not None:
 filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
 
 # Exibir tabela com os dados filtrados
-st.write("Tabela de dados filtrados:")
+st.write("Tabela de dados:")
 st.dataframe(filtered_gdf)
 
 # Função para converter DataFrame para CSV
