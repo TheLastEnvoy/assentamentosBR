@@ -74,15 +74,15 @@ if gdf is not None:
     for col, display_name in filter_columns.items():
         if col in gdf.columns:
             if col == 'uf':
-                options = [''] + gdf[col].dropna().unique().tolist()
+                options = [''] + sorted(gdf[col].dropna().unique().tolist())
                 default_index = options.index(selected_state) if selected_state in options else 0
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, index=default_index)
             elif col in ['capacidade', 'num_famili']:
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options_lotes, format_func=lambda x: 'Nenhum' if x is None else str(x))
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", sorted(options_lotes), format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'area_hecta':
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options_area_hecta, format_func=lambda x: 'Nenhum' if x is None else str(x))
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", sorted(options_area_hecta), format_func=lambda x: 'Nenhum' if x is None else str(x))
             else:
-                unique_values = [""] + gdf[col].dropna().unique().tolist()
+                unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, format_func=lambda x: 'Nenhum' if x == "" else str(x))
 
     filtered_gdf = gdf.copy()
