@@ -133,24 +133,25 @@ if gdf is not None:
     # Exibir mapa no Streamlit novamente para refletir as mudanças
     folium_static(m)
 
-    # Exibir tabela com os dados filtrados
-    st.write("Tabela de dados filtrados:")
-    st.dataframe(filtered_gdf.drop(columns='geometry'))
+# Reordenar as colunas conforme especificado
+filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
 
-    # Função para converter DataFrame para CSV
-    @st.cache_data
-    def convert_df(df):
-        return df.to_csv(index=False).encode('utf-8')
+# Exibir tabela com os dados filtrados
+st.write("Tabela de dados filtrados:")
+st.dataframe(filtered_gdf)
 
-    csv = convert_df(filtered_gdf.drop(columns='geometry'))
+# Função para converter DataFrame para CSV
+@st.cache_data
+def convert_df(df):
+    return df.to_csv(index=False).encode('utf-8')
 
-    # Botão para baixar os dados filtrados como CSV
-    st.download_button(
-        label="Baixar dados filtrados como CSV",
-        data=csv,
-        file_name='dados_filtrados.csv',
-        mime='text/csv',
-    )
+csv = convert_df(filtered_gdf)
 
-else:
-    st.error("Não foi possível carregar o shapefile.")
+# Botão para baixar os dados filtrados como CSV
+st.download_button(
+    label="Baixar dados filtrados como CSV",
+    data=csv,
+    file_name='dados_filtrados.csv',
+    mime='text/csv',
+)
+
