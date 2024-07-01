@@ -48,6 +48,12 @@ if gdf is not None:
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
+    # Definir o tipo de basemap com base na escolha do usuário
+    if basemap_option == 'Imagem de Satélite':
+        m = folium.Map(location=[-24.0, -51.0], zoom_start=7, control_scale=True, tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr='Esri')
+    else:
+        m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
+    
     # Verificar se há filtros selecionados
     filters = {}
 
