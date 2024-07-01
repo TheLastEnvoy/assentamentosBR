@@ -134,24 +134,49 @@ if gdf is not None:
     # Exibir mapa no Streamlit novamente para refletir as mudanças
     folium_static(m)
 
-    # Botão para baixar os polígonos selecionados como GeoJSON
-    def download_geojson():
-        selected_geojson = filtered_gdf[['geometry']].copy()
-        selected_geojson['geometry'] = selected_geojson['geometry'].apply(lambda geom: geom.__geo_interface__)
-        selected_geojson = selected_geojson.to_json()
-        return selected_geojson
+# Botão para baixar os polígonos selecionados como GeoJSON
+def download_geojson():
+    import json
+    from shapely.geometry.mapping import mapping
 
-    geojson = download_geojson()
+    selected_features = []
+    for idx, row in filtered_gdf.iterrows():
+        geom = row['geometry']
+        feature = {
+            'type': 'Feature',
+            'geometry': mapping(geom),
+            'properties': {
+                'nome_pa': row.get('nome_pa', 'N/A'),
+                'area_incra': row.get('area_incra', 'N/A'),
+                'area_polig': row.get('area_polig', 'N/A'),
+                'lotes': row.get('lotes', 'N/A'),
+                'quant_fami': row.get('quant_fami', 'N/A'),
+                'fase': row.get('fase', 'N/A'),
+                'data_criac': row.get('data_criac', 'N/A'),
+                'forma_obte': row.get('forma_obte', 'N/A'),
+                'data_obten': row.get('data_obten', 'N/A')
+            }
+        }
+        selected_features.append(feature)
 
-    st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
-    st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
+    feature_collection = {
+        'type': 'FeatureCollection',
+        'features': selected_features
+    }
 
-    st.download_button(
-        label="Baixar GeoJSON dos polígonos selecionados",
-        data=geojson,
-        file_name='poligonos_selecionados.geojson',
-        mime='application/json',
-    )
+    return json.dumps(feature_collection)
+
+geojson = download_geojson()
+
+st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
+st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
+
+st.download_button(
+    label="Baixar GeoJSON dos polígonos selecionados",
+    data=geojson,
+    file_name='poligonos_selecionados.geojson',
+    mime='application/json',
+)
 
 # Reordenar as colunas conforme especificado
 filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
