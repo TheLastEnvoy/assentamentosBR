@@ -41,7 +41,6 @@ if gdf is not None:
     
     st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
     st.markdown("(As informações exibidas neste site são públicas e estão disponíveis no [Portal de Dados Abertos](https://dados.gov.br/dados/conjuntos-dados/sistema-de-informacoes-de-projetos-de-reforma-agraria---sipra))")
-    st.write("(As informações exibidas neste site são públicas e estão disponíveis no Portal de Dados Abertos)")
     st.write("Contato: 6dsvj@pm.me")
 
     # Criar um mapa inicial centrado em uma coordenada padrão
