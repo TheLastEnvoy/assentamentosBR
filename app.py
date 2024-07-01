@@ -63,9 +63,9 @@ if gdf is not None:
     }
 
     # Opções para seleção de lotes, famílias beneficiárias e área máxima
-    options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000]
+    options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000, 20000]
     options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
-    options_area_hecta = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
+    options_area_hecta = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000, 400000, 600000]
 
     # Definir Paraná como o estado inicialmente selecionado
     selected_state = 'PARANÁ'
