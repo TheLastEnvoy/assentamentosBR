@@ -44,6 +44,9 @@ if gdf is not None:
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
+    # Exibir mapa no Streamlit imediatamente
+    folium_static(m)
+
     # Verificar se há filtros selecionados
     filters = {}
 
