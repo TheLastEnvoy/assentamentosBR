@@ -58,8 +58,8 @@ basemaps = {
 # Selecionar o basemap no sidebar
 selected_basemap = st.sidebar.selectbox('Escolha um basemap:', list(basemaps.keys()))
     
-    # Criar um mapa inicial com camada de azulejos 'Stamen Terrain'
-    m = folium.Map(location=[-24.0, -51.0], zoom_start=7, tiles='Stamen Terrain')
+# Criar um mapa inicial com camada de azulejos 'Stamen Terrain'
+m = folium.Map(location=[-24.0, -51.0], zoom_start=7, tiles='Stamen Terrain')
 
     # Verificar se há filtros selecionados
     filters = {}
