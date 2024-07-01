@@ -45,28 +45,6 @@ if gdf is not None:
     st.markdown("(As informações exibidas neste site são públicas e estão disponíveis no [Portal de Dados Abertos](https://dados.gov.br/dados/conjuntos-dados/sistema-de-informacoes-de-projetos-de-reforma-agraria---sipra))")
     st.write("Contato: 6dsvj@pm.me")
 
-    # Adicionar mensagem de carregamento no meio do mapa
-    loading_html = """
-        <div style="
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            background-color: rgba(255, 255, 255, 0.85);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 18px;
-            font-weight: bold;
-            text-align: center;
-            ">
-            Carregando...
-        </div>
-    """
-    m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
-    m.get_root().html.add_child(folium.Element(loading_html))
-
-
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
@@ -137,7 +115,7 @@ if gdf is not None:
                 filtered_gdf = filtered_gdf[pd.to_datetime(filtered_gdf['data_criac'], errors='coerce') <= pd.to_datetime(value)]
             else:
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
-    
+
     # Adicionar polígonos filtrados ao mapa com tooltips personalizados
     for idx, row in filtered_gdf.iterrows():
         area_formatted = format_area(row.get('area_incra', 0))
@@ -220,6 +198,3 @@ if gdf is not None:
         file_name='dados_filtrados.csv',
         mime='text/csv',
     )
-
-    # Exibir mensagem de "Carregando" enquanto o Streamlit está processando
-    st.text("Carregando...")
