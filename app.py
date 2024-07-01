@@ -67,10 +67,15 @@ if gdf is not None:
     options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
     options_area_hecta = [None, 500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
 
+    # Definir Paraná como o estado inicialmente selecionado
+    selected_state = 'Paraná'
+
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
         if col in gdf.columns:
-            if col in ['capacidade', 'num_famili']:
+            if col == 'uf':
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [''] + gdf[col].dropna().unique().tolist(), index=gdf[gdf[col] == selected_state].index[0] + 1)
+            elif col in ['capacidade', 'num_famili']:
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options_lotes, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'area_hecta':
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options_area_hecta, format_func=lambda x: 'Nenhum' if x is None else str(x))
@@ -85,7 +90,7 @@ if gdf is not None:
                 filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] <= value]
             elif col == 'capacidade' or col == 'num_famili':
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
-            else:
+            elif col == 'uf' and value != "":
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
     # Adicionar polígonos filtrados ao mapa com tooltips personalizados
