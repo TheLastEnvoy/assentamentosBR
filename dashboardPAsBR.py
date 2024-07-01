@@ -3,8 +3,8 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 import streamlit as st
-import shapely
-from shapely.geometry.mapping import mapping
+import json
+from shapely.geometry import mapping  # Importar mapping corretamente
 
 # Função para carregar shapefile
 def load_shapefile(file_path):
@@ -136,69 +136,65 @@ if gdf is not None:
     # Exibir mapa no Streamlit novamente para refletir as mudanças
     folium_static(m)
 
-# Botão para baixar os polígonos selecionados como GeoJSON
-def download_geojson():
-    import json
-    from shapely.geometry.mapping import mapping
-
-    selected_features = []
-    for idx, row in filtered_gdf.iterrows():
-        geom = row['geometry']
-        feature = {
-            'type': 'Feature',
-            'geometry': mapping(geom),
-            'properties': {
-                'nome_pa': row.get('nome_pa', 'N/A'),
-                'area_incra': row.get('area_incra', 'N/A'),
-                'area_polig': row.get('area_polig', 'N/A'),
-                'lotes': row.get('lotes', 'N/A'),
-                'quant_fami': row.get('quant_fami', 'N/A'),
-                'fase': row.get('fase', 'N/A'),
-                'data_criac': row.get('data_criac', 'N/A'),
-                'forma_obte': row.get('forma_obte', 'N/A'),
-                'data_obten': row.get('data_obten', 'N/A')
+    # Função para baixar os polígonos filtrados como GeoJSON
+    def download_geojson():
+        selected_features = []
+        for idx, row in filtered_gdf.iterrows():
+            geom = row['geometry']
+            feature = {
+                'type': 'Feature',
+                'geometry': mapping(geom),
+                'properties': {
+                    'nome_pa': row.get('nome_pa', 'N/A'),
+                    'area_incra': row.get('area_incra', 'N/A'),
+                    'area_polig': row.get('area_polig', 'N/A'),
+                    'lotes': row.get('lotes', 'N/A'),
+                    'quant_fami': row.get('quant_fami', 'N/A'),
+                    'fase': row.get('fase', 'N/A'),
+                    'data_criac': row.get('data_criac', 'N/A'),
+                    'forma_obte': row.get('forma_obte', 'N/A'),
+                    'data_obten': row.get('data_obten', 'N/A')
+                }
             }
+            selected_features.append(feature)
+
+        feature_collection = {
+            'type': 'FeatureCollection',
+            'features': selected_features
         }
-        selected_features.append(feature)
 
-    feature_collection = {
-        'type': 'FeatureCollection',
-        'features': selected_features
-    }
+        return json.dumps(feature_collection)
 
-    return json.dumps(feature_collection)
+    geojson = download_geojson()
 
-geojson = download_geojson()
+    st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
+    st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
 
-st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
-st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
+    st.download_button(
+        label="Baixar GeoJSON dos polígonos selecionados",
+        data=geojson,
+        file_name='poligonos_selecionados.geojson',
+        mime='application/json',
+    )
 
-st.download_button(
-    label="Baixar GeoJSON dos polígonos selecionados",
-    data=geojson,
-    file_name='poligonos_selecionados.geojson',
-    mime='application/json',
-)
+    # Reordenar as colunas conforme especificado
+    filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
 
-# Reordenar as colunas conforme especificado
-filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
+    # Exibir tabela com os dados filtrados
+    st.write("Tabela de dados:")
+    st.dataframe(filtered_gdf)
 
-# Exibir tabela com os dados filtrados
-st.write("Tabela de dados:")
-st.dataframe(filtered_gdf)
+    # Função para converter DataFrame para CSV
+    @st.cache
+    def convert_df(df):
+        return df.to_csv(index=False).encode('utf-8')
 
-# Função para converter DataFrame para CSV
-@st.cache_data
-def convert_df(df):
-    return df.to_csv(index=False).encode('utf-8')
+    csv = convert_df(filtered_gdf)
 
-csv = convert_df(filtered_gdf)
-
-# Botão para baixar os dados filtrados como CSV
-st.download_button(
-    label="Baixar dados filtrados como CSV",
-    data=csv,
-    file_name='dados_filtrados.csv',
-    mime='text/csv',
-)
-
+    # Botão para baixar os dados filtrados como CSV
+    st.download_button(
+        label="Baixar dados filtrados como CSV",
+        data=csv,
+        file_name='dados_filtrados.csv',
+        mime='text/csv',
+    )
