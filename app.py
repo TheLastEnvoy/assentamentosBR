@@ -59,6 +59,7 @@ if gdf is not None:
         'data_de_cr': 'a data de criação',
         'forma_obte': 'a forma de obtenção do imóvel',
         'data_obten': 'a data de obtenção do imóvel',
+        'area_hecta_min': 'a área mínima (hectares)',
         'area_hecta': 'a área máxima (hectares)'
     }
 
@@ -72,7 +73,7 @@ if gdf is not None:
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
-        if col in gdf.columns:
+        if col in gdf.columns or col == 'area_hecta_min':
             if col == 'uf':
                 options = [''] + sorted(gdf[col].dropna().unique().tolist())
                 default_index = options.index(selected_state) if selected_state in options else 0
@@ -80,7 +81,7 @@ if gdf is not None:
             elif col in ['capacidade', 'num_famili']:
                 options = [None] + sorted(options_lotes)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
-            elif col == 'area_hecta':
+            elif col in ['area_hecta', 'area_hecta_min']:
                 options = [None] + sorted(options_area_hecta)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'data_de_cr':
@@ -94,6 +95,8 @@ if gdf is not None:
         if value is not None and value != "":
             if col == 'area_hecta':
                 filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] <= value]
+            elif col == 'area_hecta_min':
+                filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] >= value]
             elif col == 'capacidade':
                 filtered_gdf = filtered_gdf[filtered_gdf['capacidade'] <= value]
             elif col == 'num_famili':
