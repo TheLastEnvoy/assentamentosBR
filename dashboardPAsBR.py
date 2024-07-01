@@ -134,6 +134,25 @@ if gdf is not None:
     # Exibir mapa no Streamlit novamente para refletir as mudanças
     folium_static(m)
 
+    # Botão para baixar os polígonos selecionados como GeoJSON
+    def download_geojson():
+        selected_geojson = filtered_gdf[['geometry']].copy()
+        selected_geojson['geometry'] = selected_geojson['geometry'].apply(lambda geom: geom.__geo_interface__)
+        selected_geojson = selected_geojson.to_json()
+        return selected_geojson
+
+    geojson = download_geojson()
+
+    st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
+    st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
+
+    st.download_button(
+        label="Baixar GeoJSON dos polígonos selecionados",
+        data=geojson,
+        file_name='poligonos_selecionados.geojson',
+        mime='application/json',
+    )
+
 # Reordenar as colunas conforme especificado
 filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
 
