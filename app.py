@@ -68,7 +68,7 @@ if gdf is not None:
     options_area_hecta = [None, 500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
 
     # Definir Paraná como o estado inicialmente selecionado
-    selected_state = 'Paraná'
+    selected_state = 'PARANÁ'
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
