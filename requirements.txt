@@ -4,3 +4,4 @@ folium
 streamlit
 branca
 streamlit_folium
+shapely
