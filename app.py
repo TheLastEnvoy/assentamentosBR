@@ -8,8 +8,9 @@ import streamlit as st
 def load_shapefile(file_path):
     try:
         gdf = gpd.read_file(file_path)
-        # Converter a coluna de área para numérica
+        # Converter as colunas de área para numérica
         gdf['area_hecta'] = pd.to_numeric(gdf['area_hecta'], errors='coerce')
+        gdf['area2'] = pd.to_numeric(gdf['area2'], errors='coerce')
         return gdf
     except Exception as e:
         st.error(f"Erro ao carregar shapefile: {e}")
@@ -60,7 +61,9 @@ if gdf is not None:
         'forma_obte': 'a forma de obtenção do imóvel',
         'data_obten': 'a data de obtenção do imóvel',
         'area_hecta_min': 'a área mínima (hectares)',
-        'area_hecta': 'a área máxima (hectares)'
+        'area_hecta': 'a área máxima (hectares)',
+        'area2_min': 'a área mínima (hectares) segundo polígono',
+        'area2': 'a área máxima (hectares) segundo polígono'
     }
 
     # Opções para seleção de lotes, famílias beneficiárias e áreas
@@ -73,7 +76,7 @@ if gdf is not None:
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
-        if col in gdf.columns or col == 'area_hecta_min':
+        if col in gdf.columns or col in ['area_hecta_min', 'area2_min']:
             if col == 'uf':
                 options = [''] + sorted(gdf[col].dropna().unique().tolist())
                 default_index = options.index(selected_state) if selected_state in options else 0
@@ -81,7 +84,7 @@ if gdf is not None:
             elif col in ['capacidade', 'num_famili']:
                 options = [None] + sorted(options_lotes)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
-            elif col in ['area_hecta', 'area_hecta_min']:
+            elif col in ['area_hecta', 'area_hecta_min', 'area2', 'area2_min']:
                 options = [None] + sorted(options_area_hecta)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'data_de_cr':
@@ -97,6 +100,10 @@ if gdf is not None:
                 filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] <= value]
             elif col == 'area_hecta_min':
                 filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] >= value]
+            elif col == 'area2':
+                filtered_gdf = filtered_gdf[filtered_gdf['area2'] <= value]
+            elif col == 'area2_min':
+                filtered_gdf = filtered_gdf[filtered_gdf['area2'] >= value]
             elif col == 'capacidade':
                 filtered_gdf = filtered_gdf[filtered_gdf['capacidade'] <= value]
             elif col == 'num_famili':
@@ -109,8 +116,10 @@ if gdf is not None:
     # Adicionar polígonos filtrados ao mapa com tooltips personalizados
     for idx, row in filtered_gdf.iterrows():
         area_formatted = format_area(row.get('area_hecta', 0))
+        area2_formatted = format_area(row.get('area2', 0))
         tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
                   f"Área: {area_formatted} hectares<br>" \
+                  f"Área (segundo polígono): {area2_formatted} hectares<br>" \
                   f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
                   f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
                   f"Fase: {row.get('fase', 'N/A')}<br>" \
