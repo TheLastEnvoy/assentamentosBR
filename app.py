@@ -49,17 +49,17 @@ if gdf is not None:
 
     # Lista de colunas para filtros e seus nomes de exibição
     filter_columns = {
-        'uf': 'Estado',
-        'municipio': 'Município',
-        'nome_proje': 'Assentamento',
-        'cd_sipra': 'Código SIPRA',
-        'capacidade': 'Lotes',
-        'num_famili': 'Famílias beneficiárias',
-        'fase': 'Fase',
-        'data_de_cr': 'Data de criação',
-        'forma_obte': 'Forma de obtenção do imóvel',
-        'data_obten': 'Data de obtenção do imóvel',
-        'area_hecta': 'Área máxima (hectares)'
+        'uf': 'um estado',
+        'municipio': 'um município',
+        'nome_proje': 'um assentamento',
+        'cd_sipra': 'um código SIPRA',
+        'capacidade': 'o total de lotes',
+        'num_famili': 'a quantidade de famílias beneficiárias',
+        'fase': 'uma fase de consolidação',
+        'data_de_cr': 'a data de criação',
+        'forma_obte': 'a forma de obtenção do imóvel',
+        'data_obten': 'a data de obtenção do imóvel',
+        'area_hecta': 'a área máxima (hectares)'
     }
 
     # Opções para seleção de lotes, famílias beneficiárias e área máxima
