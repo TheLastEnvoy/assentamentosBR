@@ -9,8 +9,8 @@ def load_shapefile(file_path):
     try:
         gdf = gpd.read_file(file_path)
         # Converter as colunas de área para numérica
-        gdf['area_hecta'] = pd.to_numeric(gdf['area_hecta'], errors='coerce')
-        gdf['area2'] = pd.to_numeric(gdf['area2'], errors='coerce')
+        gdf['area_incra'] = pd.to_numeric(gdf['area_incra'], errors='coerce')
+        gdf['area_polig'] = pd.to_numeric(gdf['area_polig'], errors='coerce')
         return gdf
     except Exception as e:
         st.error(f"Erro ao carregar shapefile: {e}")
@@ -52,42 +52,42 @@ if gdf is not None:
     filter_columns = {
         'uf': 'um estado',
         'municipio': 'um município',
-        'nome_proje': 'um assentamento',
+        'nome_pa': 'um assentamento',
         'cd_sipra': 'um código SIPRA',
-        'capacidade': 'o total de lotes',
-        'num_famili': 'a quantidade de famílias beneficiárias',
+        'lotes': 'o total de lotes',
+        'quant_fami': 'a quantidade de famílias beneficiárias',
         'fase': 'uma fase de consolidação',
-        'data_de_cr': 'a data de criação',
+        'data_criac': 'a data de criação',
         'forma_obte': 'a forma de obtenção do imóvel',
         'data_obten': 'a data de obtenção do imóvel',
-        'area_hecta_min': 'a área mínima (hectares) segundo dados do INCRA',
-        'area_hecta': 'a área máxima (hectares) segundo dados do INCRA',
-        'area2_min': 'a área mínima (hectares) segundo polígono',
-        'area2': 'a área máxima (hectares) segundo polígono'
+        'area_incra_min': 'a área mínima (hectares) segundo dados do INCRA',
+        'area_incra': 'a área máxima (hectares) segundo dados do INCRA',
+        'area_polig_min': 'a área mínima (hectares) segundo polígono',
+        'area_polig': 'a área máxima (hectares) segundo polígono'
     }
 
     # Opções para seleção de lotes, famílias beneficiárias e áreas
     options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000, 20000]
     options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
-    options_area_hecta = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000, 400000, 600000]
+    options_area_incra = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000, 400000, 600000]
 
     # Definir Paraná como o estado inicialmente selecionado
     selected_state = 'PARANÁ'
 
     # Cria os selectboxes apenas para as colunas que existem no DataFrame
     for col, display_name in filter_columns.items():
-        if col in gdf.columns or col in ['area_hecta_min', 'area2_min']:
+        if col in gdf.columns or col in ['area_incra_min', 'area_polig_min']:
             if col == 'uf':
                 options = [''] + sorted(gdf[col].dropna().unique().tolist())
                 default_index = options.index(selected_state) if selected_state in options else 0
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, index=default_index)
-            elif col in ['capacidade', 'num_famili']:
+            elif col in ['lotes', 'quant_fami']:
                 options = [None] + sorted(options_lotes)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
-            elif col in ['area_hecta', 'area_hecta_min', 'area2', 'area2_min']:
-                options = [None] + sorted(options_area_hecta)
+            elif col in ['area_incra', 'area_incra_min', 'area_polig', 'area_polig_min']:
+                options = [None] + sorted(options_area_incra)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
-            elif col == 'data_de_cr':
+            elif col == 'data_criac':
                 filters[col] = st.sidebar.date_input(f"Escolha {display_name}:", min_value=pd.to_datetime("1970-01-01"), max_value=pd.to_datetime("2034-12-31"))
             else:
                 unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
@@ -96,34 +96,34 @@ if gdf is not None:
     filtered_gdf = gdf.copy()
     for col, value in filters.items():
         if value is not None and value != "":
-            if col == 'area_hecta':
-                filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] <= value]
-            elif col == 'area_hecta_min':
-                filtered_gdf = filtered_gdf[filtered_gdf['area_hecta'] >= value]
-            elif col == 'area2':
-                filtered_gdf = filtered_gdf[filtered_gdf['area2'] <= value]
-            elif col == 'area2_min':
-                filtered_gdf = filtered_gdf[filtered_gdf['area2'] >= value]
-            elif col == 'capacidade':
-                filtered_gdf = filtered_gdf[filtered_gdf['capacidade'] <= value]
-            elif col == 'num_famili':
-                filtered_gdf = filtered_gdf[filtered_gdf['num_famili'] <= value]
-            elif col == 'data_de_cr':
-                filtered_gdf = filtered_gdf[pd.to_datetime(filtered_gdf['data_de_cr'], errors='coerce') <= pd.to_datetime(value)]
+            if col == 'area_incra':
+                filtered_gdf = filtered_gdf[filtered_gdf['area_incra'] <= value]
+            elif col == 'area_incra_min':
+                filtered_gdf = filtered_gdf[filtered_gdf['area_incra'] >= value]
+            elif col == 'area_polig':
+                filtered_gdf = filtered_gdf[filtered_gdf['area_polig'] <= value]
+            elif col == 'area_polig_min':
+                filtered_gdf = filtered_gdf[filtered_gdf['area_polig'] >= value]
+            elif col == 'lotes':
+                filtered_gdf = filtered_gdf[filtered_gdf['lotes'] <= value]
+            elif col == 'quant_fami':
+                filtered_gdf = filtered_gdf[filtered_gdf['quant_fami'] <= value]
+            elif col == 'data_criac':
+                filtered_gdf = filtered_gdf[pd.to_datetime(filtered_gdf['data_criac'], errors='coerce') <= pd.to_datetime(value)]
             else:
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
     # Adicionar polígonos filtrados ao mapa com tooltips personalizados
     for idx, row in filtered_gdf.iterrows():
-        area_formatted = format_area(row.get('area_hecta', 0))
-        area2_formatted = format_area(row.get('area2', 0))
-        tooltip = f"<b>{row.get('nome_proje', 'N/A')} (Assentamento)</b><br>" \
+        area_formatted = format_area(row.get('area_incra', 0))
+        area_polig_formatted = format_area(row.get('area_polig', 0))
+        tooltip = f"<b>{row.get('nome_pa', 'N/A')} (Assentamento)</b><br>" \
                   f"Área: {area_formatted} hectares<br>" \
-                  f"Área (segundo polígono): {area2_formatted} hectares<br>" \
-                  f"Lotes: {row.get('capacidade', 'N/A')}<br>" \
-                  f"Famílias: {row.get('num_famili', 'N/A')}<br>" \
+                  f"Área (segundo polígono): {area_polig_formatted} hectares<br>" \
+                  f"Lotes: {row.get('lotes', 'N/A')}<br>" \
+                  f"Famílias: {row.get('quant_fami', 'N/A')}<br>" \
                   f"Fase: {row.get('fase', 'N/A')}<br>" \
-                  f"Data de criação: {row.get('data_de_cr', 'N/A')}<br>" \
+                  f"Data de criação: {row.get('data_criac', 'N/A')}<br>" \
                   f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
                   f"Data de obtenção: {row.get('data_obten', 'N/A')}"
         folium.GeoJson(row['geometry'],
