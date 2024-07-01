@@ -83,6 +83,8 @@ if gdf is not None:
             elif col == 'area_hecta':
                 options = [None] + sorted(options_area_hecta)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
+            elif col == 'data_de_cr':
+                filters[col] = st.sidebar.date_input(f"Escolha {display_name}:")
             else:
                 unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, format_func=lambda x: 'Nenhum' if x == "" else str(x))
@@ -96,6 +98,8 @@ if gdf is not None:
                 filtered_gdf = filtered_gdf[filtered_gdf['capacidade'] <= value]
             elif col == 'num_famili':
                 filtered_gdf = filtered_gdf[filtered_gdf['num_famili'] <= value]
+            elif col == 'data_de_cr':
+                filtered_gdf = filtered_gdf[pd.to_datetime(filtered_gdf['data_de_cr'], errors='coerce') <= pd.to_datetime(value)]
             else:
                 filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
 
