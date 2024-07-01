@@ -3,6 +3,8 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 import streamlit as st
+import shapely
+from shapely.geometry.mapping import mapping
 
 # Função para carregar shapefile
 def load_shapefile(file_path):
