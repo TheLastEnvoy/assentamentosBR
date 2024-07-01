@@ -50,10 +50,10 @@ if gdf is not None:
 
     # Definir o tipo de basemap com base na escolha do usuário
     if basemap_option == 'Imagem de Satélite':
-        m = folium.Map(location=[-24.0, -51.0], zoom_start=7, control_scale=True, tiles='https://cartodb-basemaps-{s}.global.ssl.fastly.net/rastertiles/satellite/{z}/{x}/{y}.png', attr='Map tiles by Carto, under CC BY 3.0. Data by OpenStreetMap, under ODbL.')
+        m = folium.Map(location=[-24.0, -51.0], zoom_start=7, control_scale=True, tiles='https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', attr='OpenStreetMap')
     else:
         m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
-    
+
     # Verificar se há filtros selecionados
     filters = {}
 
