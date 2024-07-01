@@ -5,6 +5,7 @@ from streamlit_folium import folium_static
 import streamlit as st
 import json
 from shapely.geometry import mapping  # Importar mapping corretamente
+from folium.plugins import FloatImage  # Importar plugins de imagem flutuante
 
 # Função para carregar shapefile
 def load_shapefile(file_path):
@@ -45,6 +46,18 @@ if gdf is not None:
     st.markdown("(As informações exibidas neste site são públicas e estão disponíveis no [Portal de Dados Abertos](https://dados.gov.br/dados/conjuntos-dados/sistema-de-informacoes-de-projetos-de-reforma-agraria---sipra))")
     st.write("Contato: 6dsvj@pm.me")
 
+    # Opções de basemap
+    basemaps = {
+        'OpenStreetMap': folium.TileLayer('openstreetmap'),
+        'Stamen Terrain': folium.TileLayer('stamenterrain'),
+        'Stamen Toner': folium.TileLayer('stamentoner'),
+        'Esri Satellite': folium.TileLayer('esrisatellite'),
+        'CartoDB Positron': folium.TileLayer('cartodbpositron')
+    }
+
+    # Selecionar o basemap no sidebar
+    selected_basemap = st.sidebar.selectbox('Escolha um basemap:', list(basemaps.keys()))
+    
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
