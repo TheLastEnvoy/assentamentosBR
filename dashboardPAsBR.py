@@ -41,7 +41,7 @@ if gdf is not None:
     
     st.title("Mapa interativo com os projetos de assentamento de reforma agrária no Brasil")
     st.write("(As informações exibidas neste site são públicas)")
-        st.write("Contato: 6dsvj@pm.me")
+    st.write("Contato: 6dsvj@pm.me")
 
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
