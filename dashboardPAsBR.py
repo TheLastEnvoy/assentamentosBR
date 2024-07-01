@@ -48,6 +48,26 @@ if gdf is not None:
     # Criar um mapa inicial centrado em uma coordenada padrão
     m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
 
+    # Adicionar mensagem de carregamento no meio do mapa
+    loading_html = """
+        <div style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.85);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            ">
+            Carregando...
+        </div>
+    """
+    m.get_root().html.add_child(folium.Element(loading_html))
+
     # Verificar se há filtros selecionados
     filters = {}
 
