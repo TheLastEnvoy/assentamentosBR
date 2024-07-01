@@ -74,7 +74,9 @@ if gdf is not None:
     for col, display_name in filter_columns.items():
         if col in gdf.columns:
             if col == 'uf':
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", [''] + gdf[col].dropna().unique().tolist(), index=gdf[gdf[col] == selected_state].index[0] + 1)
+                options = [''] + gdf[col].dropna().unique().tolist()
+                default_index = options.index(selected_state) if selected_state in options else 0
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, index=default_index)
             elif col in ['capacidade', 'num_famili']:
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options_lotes, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'area_hecta':
