@@ -63,9 +63,9 @@ if gdf is not None:
     }
 
     # Opções para seleção de lotes, famílias beneficiárias e área máxima
-    options_lotes = [None, 10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000]
+    options_lotes = [10, 50, 100, 300, 500, 800, 1200, 2000, 5000, 10000, 15000]
     options_familias = options_lotes  # Usando as mesmas opções de lotes para famílias beneficiárias
-    options_area_hecta = [None, 500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
+    options_area_hecta = [500, 1000, 5000, 10000, 30000, 50000, 100000, 200000]
 
     # Definir Paraná como o estado inicialmente selecionado
     selected_state = 'PARANÁ'
@@ -78,9 +78,11 @@ if gdf is not None:
                 default_index = options.index(selected_state) if selected_state in options else 0
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, index=default_index)
             elif col in ['capacidade', 'num_famili']:
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", sorted(options_lotes), format_func=lambda x: 'Nenhum' if x is None else str(x))
+                options = [None] + sorted(options_lotes)
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
             elif col == 'area_hecta':
-                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", sorted(options_area_hecta), format_func=lambda x: 'Nenhum' if x is None else str(x))
+                options = [None] + sorted(options_area_hecta)
+                filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Nenhum' if x is None else str(x))
             else:
                 unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, format_func=lambda x: 'Nenhum' if x == "" else str(x))
