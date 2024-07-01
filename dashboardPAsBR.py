@@ -46,15 +46,15 @@ if gdf is not None:
     st.markdown("(As informações exibidas neste site são públicas e estão disponíveis no [Portal de Dados Abertos](https://dados.gov.br/dados/conjuntos-dados/sistema-de-informacoes-de-projetos-de-reforma-agraria---sipra))")
     st.write("Contato: 6dsvj@pm.me")
 
-    # Opções de basemap com atribuições corretas
-    basemaps = {
+# Opções de basemap com atribuições corretas
+basemaps = {
     'OpenStreetMap': folium.TileLayer('openstreetmap'),
     'Stamen Terrain': folium.TileLayer('stamenterrain', attr='Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'),
-    'Stamen Toner': folium.TileLayer('stamentoner'),
+    'Stamen Toner': folium.TileLayer('stamentoner', attr='Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL.'),
     'Esri Satellite': folium.TileLayer('esrisatellite'),
     'CartoDB Positron': folium.TileLayer('cartodbpositron')
 }
- 
+
     # Selecionar o basemap no sidebar
     selected_basemap = st.sidebar.selectbox('Escolha um basemap:', list(basemaps.keys()))
     
