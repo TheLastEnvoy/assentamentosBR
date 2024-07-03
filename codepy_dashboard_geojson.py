@@ -66,8 +66,6 @@ if gdf is not None:
     st.markdown("(As informações exibidas neste site são públicas e estão disponíveis no [Portal de Dados Abertos](https://dados.gov.br/dados/conjuntos-dados/sistema-de-informacoes-de-projetos-de-reforma-agraria---sipra))")
     st.write("Contato: 6dsvj@pm.me")
 
-    m = folium.Map(location=[-24.0, -51.0], zoom_start=7)
-
     filters = {}
 
     filter_columns = {
@@ -99,6 +97,13 @@ if gdf is not None:
                 options = [''] + sorted(gdf[col].dropna().unique().tolist())
                 default_index = options.index(selected_state) if selected_state in options else 0
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, index=default_index)
+            elif col == 'municipio':
+                if 'uf' in filters and filters['uf']:
+                    if filters['uf']:
+                        municipios_estado = [''] + sorted(gdf[gdf['uf'] == filters['uf']]['municipio'].dropna().unique().tolist())
+                        filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", municipios_estado)
+                    else:
+                        filters[col] = ''
             elif col in ['lotes', 'quant_fami']:
                 options = [None] + sorted(options_lotes)
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", options, format_func=lambda x: 'Todos' if x is None else str(x))
@@ -111,6 +116,7 @@ if gdf is not None:
                 unique_values = [""] + sorted(gdf[col].dropna().unique().tolist())
                 filters[col] = st.sidebar.selectbox(f"Escolha {display_name}:", unique_values, format_func=lambda x: 'Todos' if x == "" else str(x))
 
+    # Filtragem do GeoDataFrame com base nos filtros selecionados
     filtered_gdf = gdf.copy()
     for col, value in filters.items():
         if value is not None and value != "":
@@ -128,56 +134,71 @@ if gdf is not None:
                 filtered_gdf = filtered_gdf[filtered_gdf['quant_fami'] <= value]
             elif col == 'data_criac':
                 filtered_gdf = filtered_gdf[pd.to_datetime(filtered_gdf['data_criac'], errors='coerce') <= pd.to_datetime(value)]
-            else:
-                filtered_gdf = filtered_gdf[filtered_gdf[col] == value]
+            elif col == 'municipio':
+                if 'uf' in filters and filters['uf']:
+                    if value:
+                        filtered_gdf = filtered_gdf[filtered_gdf['municipio'] == value]
+            elif col == 'uf':
+                if value:
+                    filtered_gdf = filtered_gdf[filtered_gdf['uf'] == value]
 
-    for idx, row in filtered_gdf.iterrows():
-        area_formatted = format_area(row.get('area_incra', 0))
-        area_polig_formatted = format_area(row.get('area_polig', 0))
-        tooltip = f"<b>{row.get('nome_pa', 'N/A')} (Assentamento)</b><br>" \
-                  f"Área: {area_formatted} hectares<br>" \
-                  f"Área (segundo polígono): {area_polig_formatted} hectares<br>" \
-                  f"Lotes: {row.get('lotes', 'N/A')}<br>" \
-                  f"Famílias: {row.get('quant_fami', 'N/A')}<br>" \
-                  f"Fase: {row.get('fase', 'N/A')}<br>" \
-                  f"Data de criação: {row.get('data_criac', 'N/A')}<br>" \
-                  f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
-                  f"Data de obtenção: {row.get('data_obten', 'N/A')}"
-        folium.GeoJson(
-            row.geometry,
-            tooltip=tooltip,
-        ).add_to(m)
+    # Criar o mapa com base nos polígonos filtrados
+    if not filtered_gdf.empty:
+        m = folium.Map(location=[-15.77972, -47.92972], zoom_start=4)
 
-    folium_static(m)
+        # Adicionar os polígonos filtrados ao mapa
+        for idx, row in filtered_gdf.iterrows():
+            area_formatted = format_area(row.get('area_incra', 0))
+            area_polig_formatted = format_area(row.get('area_polig', 0))
+            tooltip = f"<b>{row.get('nome_pa', 'N/A')} (Assentamento)</b><br>" \
+                      f"Área: {area_formatted} hectares<br>" \
+                      f"Área (segundo polígono): {area_polig_formatted} hectares<br>" \
+                      f"Lotes: {row.get('lotes', 'N/A')}<br>" \
+                      f"Famílias: {row.get('quant_fami', 'N/A')}<br>" \
+                      f"Fase: {row.get('fase', 'N/A')}<br>" \
+                      f"Data de criação: {row.get('data_criac', 'N/A')}<br>" \
+                      f"Forma de obtenção: {row.get('forma_obte', 'N/A')}<br>" \
+                      f"Data de obtenção: {row.get('data_obten', 'N/A')}"
+            folium.GeoJson(
+                row.geometry,
+                tooltip=tooltip,
+            ).add_to(m)
 
-    # Baixar polígonos selecionados como GeoJSON
-    geojson = download_geojson(filtered_gdf)
+        # Ajustar o mapa para exibir todos os polígonos
+        m.fit_bounds(m.get_bounds())
 
-    st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
-    st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
+        folium_static(m)
 
-    st.download_button(
-        label="Baixar GeoJSON dos polígonos selecionados",
-        data=geojson,
-        file_name='poligonos_selecionados.geojson',
-        mime='application/json',
-    )
+        # Baixar polígonos selecionados como GeoJSON
+        geojson = download_geojson(filtered_gdf)
 
-    # Exibir tabela de dados filtrados
-    filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
-    st.write("Tabela de dados:")
-    st.dataframe(filtered_gdf)
+        st.markdown(f"### Baixar polígonos selecionados como GeoJSON")
+        st.markdown("Clique abaixo para baixar um arquivo GeoJSON contendo os polígonos dos assentamentos selecionados.")
 
-    # Baixar dados filtrados como CSV
-    @st.cache(suppress_st_warning=True)
-    def convert_df(df):
-        return df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="Baixar GeoJSON dos polígonos selecionados",
+            data=geojson,
+            file_name='poligonos_selecionados.geojson',
+            mime='application/json',
+        )
 
-    csv = convert_df(filtered_gdf)
+        # Exibir tabela de dados filtrados
+        filtered_gdf = filtered_gdf[['uf', 'municipio', 'cd_sipra', 'nome_pa', 'lotes', 'quant_fami', 'fase', 'area_incra', 'area_polig', 'data_criac', 'forma_obte', 'data_obten']]
+        st.write("Tabela de dados:")
+        st.dataframe(filtered_gdf)
 
-    st.download_button(
-        label="Baixar dados filtrados como CSV",
-        data=csv,
-        file_name='dados_filtrados.csv',
-        mime='text/csv',
-    )
+        # Baixar dados filtrados como CSV
+        @st.cache(suppress_st_warning=True)
+        def convert_df(df):
+            return df.to_csv(index=False).encode('utf-8')
+
+        csv = convert_df(filtered_gdf)
+
+        st.download_button(
+            label="Baixar dados filtrados como CSV",
+            data=csv,
+            file_name='dados_filtrados.csv',
+            mime='text/csv',
+        )
+    else:
+        st.warning("Nenhum resultado encontrado com os filtros selecionados.")
