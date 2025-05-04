@@ -2,10 +2,6 @@
 
 <https://reformaagrariabr.streamlit.app/>
 
-
-
-
-
 Visualização interativa dos projetos de assentamento de reforma agrária no Brasil
 ✨ Funcionalidades
 
@@ -93,11 +89,8 @@ Contribuições são bem-vindas! Siga estes passos:
     Envie para o GitHub (git push origin feature/nova-funcionalidade)
     Abra um Pull Request
 
-📜 Licença
-
-Este projeto está licenciado sob a MIT License.
 📧 Contato
 
-Para dúvidas ou sugestões, entre em contato pelo email: 6dsvjr@pm.me
+6dsvjr@pm.me
 
-⭐ Desenvolvido com dados abertos para transparência na reforma agrária ⭐
+Os dados usados estão todos disponíveis publicamente, como indicado em link no próprio dashboard.
