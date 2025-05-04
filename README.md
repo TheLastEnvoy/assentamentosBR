@@ -1,9 +1,10 @@
 🗺️ MapaAssentamentos
+
 <https://reformaagrariabr.streamlit.app/>
-[
-[
-[
-[
+
+
+
+
 
 Visualização interativa dos projetos de assentamento de reforma agrária no Brasil
 ✨ Funcionalidades
